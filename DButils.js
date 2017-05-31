@@ -6,6 +6,7 @@ var Request = require('tedious').Request;
 
 exports.Select = function (connection, query) {
     console.log("**Select**");
+    console.log("**Query is: " + query + "**");
     return new Promise(function (resolve, reject) {
         var req = new Request(query, function (err, rowCount) {
             if (err) {
