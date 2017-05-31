@@ -91,29 +91,9 @@ app.post('/register', function (req, res) {
         .toString();
 
     DBUtils.Insert(connection, query)
+        .then(addUserCategories)
         .then(function (response) {
-            console.log("**Added new client to data base**");
-
-            console.log("**Adding client categories..**");
-            var categories = req.body.categories;
-            console.log(categories);
-            query = squel.insert()
-                .into("CilentsCategories");
-            categories.forEach(function (category) {
-                console.log(category);
-                query.set("UserName", req.body.username)
-                    .set("CategoryID", category);
-
-                DBUtils.Insert(connection, query)
-                    .then(function (response) {
-                        console.log("** Added user categories **");
-                        res.send({"response": "success"})
-                    })
-                    .catch(function (err) {
-                        console.log("** Error adding user categories **");
-                        res.status(500).send('500 - server error');
-                    })
-            });
+            res.send({"response": "success"});
         })
         .catch(function (err) {
             console.log("**Error in register:**");
@@ -124,13 +104,32 @@ app.post('/register', function (req, res) {
             else {
                 res.status(500).send('500 - server error');
             }
-        })
+        });
+
+    function addUserCategories(response) {
+        return new Promise(function (resolve, reject) {
+            console.log("**Adding client categories..**");
+            var categories = req.body.categories;
+            console.log(categories);
+            var query = "insert into CilentsCategories (UserName, CategoryID) ";
+            categories.forEach(function (category) {
+                query = query + "SELECT '" + req.body.username + "', '" + category + "' ";
+                query = query + "UNION ALL ";
+            });
+            query = query.substr(0, query.lastIndexOf('U'));
+
+            DBUtils.Insert(connection, query)
+                .then(function (response) {
+                    console.log("** Added user categories **");
+                    resolve(response);
+                })
+                .catch(function (err) {
+                    console.log("** Error adding user categories **");
+                    reject(err);
+                })
+        });
+    }
 });
-
-function addUserCategories(reponse) {
-
-}
-
 
 // general error handler
 app.use(function (err, req, res, next) {
