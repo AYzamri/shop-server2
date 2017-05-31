@@ -1,18 +1,17 @@
-var express = require('express'); // Loading the express module to the server.
+var express = require('express');
 var bodyParser = require('body-parser');
-var app = express(); // activating express
+var cors = require('cors');
+var DBUtils = require("./DButils.js");
 var Connection = require('tedious').Connection;
+
+var app = express(); // activating express
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
-var cors = require('cors');
 app.use(cors());
-var Request = require('tedious').Request;
-// var DButils = require('DButils');
-
 
 var port = 5000;
 app.listen(port, function () {
-    console.log('listening to port: ' + port);
+    console.log('**listening to port: ' + port + '**');
 });
 
 var config = {
@@ -29,52 +28,43 @@ connection.on('connect', function (err) {
         console.error('error connection: ' + err.stack);
         return;
     }
-    console.log("Connected azure");
+    console.log("**Connected azure**");
 });
 
-app.get('/', function (req, res) {
-    res.send('Welcome to my page!');
-    console.log('get completed');
+// *** listAllProducts ***
+app.get('/listAllProducts', function (req, res) {
+    console.log("**list all products**");
+    DBUtils.Select(connection, 'Select * from Records')
+        .then(function (records){
+            console.log("**sending all Records to client...**");
+            res.send((records));
+        })
+        .catch(function (err){
+            console.log("**Error in list products:**" + err.message);
+            res.status(500).send('500 - server error');
+        })
 });
 
-app.get('/listProducts', function (req, res) {
-    var allMovies = Select(connection, 'Select * from Movies')
-        .then(function (movies) {
-            res.send(movies);
-        });
-    res.send("list products");
+// *** login ***
+app.post('/login', function(req, res){
+    console.log("**login**");
+    var userName = req.body.username;
+    var password = req.body.password;
+    console.log("**trying to login: " + userName + " with password " + password);
+    var query = 'Select * from Clients where UserName = ' + userName + 'and Password = ' + password;
+    DBUtils.Select(connection, query)
+        .then(function(users){
+            res.send(users.length === 1);
+        })
+        .catch(function (err) {
+            console.log("**Error in login: " + err.message + "**");
+            res.status(500).send('500 - server error');
+        })
 });
 
+// general error handler
+app.use(function(err, req, res, next) {
+    console.log('unhandled error detected: ' + err.message);
+    res.status(500).send('500 - server error');
+});
 
-function Select(connection, query) {
-    return new Promise(function (resolve, reject) {
-        var req = new Request(query, function (err, rowCount) {
-            if (err) {
-                console.log(err);
-                reject(err.message);
-            }
-        });
-        var res = [];
-        var properties = [];
-        req.on('columnMetadata', function (columns) {
-            columns.forEach(function (column) {
-                if (column.colName != null)
-                    properties.push(column.colName);
-            });
-        });
-        req.on('row', function (row) {
-            var item = {};
-            for (i = 0; i < row.length; i++) {
-                item[properties[i]] = row[i].value;
-            }
-            res.push(item);
-        });
-        req.on('requestCompleted', function () {
-            console.log('requestCompleted with ' + req.rowCount + ' rows');
-            console.log(res);
-            resolve("success");
-        });
-
-        connection.execSql(req);
-    });
-}

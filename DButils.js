@@ -5,6 +5,7 @@
 var Request = require('tedious').Request;
 
 exports.Select = function (connection, query) {
+    console.log("**Select**");
     return new Promise(function (resolve, reject) {
         var req = new Request(query, function (err, rowCount) {
             if (err) {
@@ -33,6 +34,6 @@ exports.Select = function (connection, query) {
             resolve(res);
         });
 
-        connection.executeSql(req);
+        connection.execSql(req);
     });
-}
+};
