@@ -51,6 +51,7 @@ app.get('/listAllProducts', function (req, res) {
         })
 });
 
+// *** get newest products ***
 app.get('/getNewestProducts', function (req, res) {
     console.log("**list 5 newest records**");
     DBUtils.Select(connection, 'Select TOP(5) from Records ORDER by ArriveDateInStore DESC')
@@ -64,10 +65,6 @@ app.get('/getNewestProducts', function (req, res) {
         })
 });
 
-
-
-
-
 // *** login ***
 app.post('/login', function (req, res) {
     console.log("**login**");
@@ -76,13 +73,43 @@ app.post('/login', function (req, res) {
     console.log("**trying to login: " + userName + " with password " + password);
     var query = "Select * FROM Clients WHERE UserName=" + userName + " AND Password=" + password;
     DBUtils.Select(connection, query)
-        .then(function (users) {
-            res.send({"result": users.length === 1});
+        .then(checkIfOneRecordIsBack)
+        .then(updateLoginTime)
+        .then(function (response) {
+            res.send({"response": response});
         })
         .catch(function (err) {
             console.log("**Error in login:**");
             res.status(500).send('500 - server error');
-        })
+        });
+
+    function checkIfOneRecordIsBack(response) {
+        return new Promise(function (resolve, reject) {
+            resolve(response.length === 1);
+        });
+    }
+
+    function updateLoginTime(response) {
+        return new Promise(function (resolve, reject) {
+            console.log("** update login time **");
+            var currentDate = new Date();
+            var query = squel.update()
+                .table("Clients")
+                .set("LastLogin", currentDate.today() + " @ " + currentDate.timeNow())
+                .where("UserName = " + userName)
+                .toString();
+
+            DBUtils.Update(connection, query)
+                .then(function () {
+                    console.log("** updated user last login time **");
+                    resolve(response);
+                })
+                .catch(function (err) {
+                    console.log("** error while updating user last login time");
+                    reject(err);
+                })
+        });
+    }
 });
 
 // *** register ***
@@ -110,7 +137,7 @@ app.post('/register', function (req, res) {
     DBUtils.Insert(connection, query)
         .then(addUserCategories)
         .then(function (response) {
-            res.send({"response": "success"});
+            res.send({"response": response});
         })
         .catch(function (err) {
             console.log("**Error in register:**");
@@ -150,6 +177,7 @@ app.post('/register', function (req, res) {
 
 // *** recoverPassword ***
 app.post('/recoverPassword', function (req, res) {
+    console.log("** Recover Password **");
     var userName = "'" + req.body.username + "'";
     var answer = "'" + req.body.answer + "'";
     var query = squel.select()
@@ -169,9 +197,39 @@ app.post('/recoverPassword', function (req, res) {
         })
 });
 
+// *** last login time ***
+app.post('/getLastLoginTime', function (req, res){
+    console.log("** get last login time **");
+    var userName = "'" + req.body.username + "'";
+    var query = squel.select()
+        .field("LastLogin")
+        .from("Clients")
+        .where("UserName = " + userName)
+        .toString();
+
+    DBUtils.Select(connection, query)
+        .then(function (lastLogin){
+            res.send({"result" : lastLogin});
+        })
+        .catch(function (err) {
+            console.log("** Error in get last login time **");
+            res.status(500).send('500 - server error');
+        })
+});
+
 // general error handler
 app.use(function (err, req, res, next) {
     console.log('unhandled error detected: ' + err.message);
     res.status(500).send('500 - server error');
 });
+
+// For todays date;
+Date.prototype.today = function () {
+    return ((this.getDate() < 10) ? "0" : "") + this.getDate() + "/" + (((this.getMonth() + 1) < 10) ? "0" : "") + (this.getMonth() + 1) + "/" + this.getFullYear();
+};
+
+// For the time now
+Date.prototype.timeNow = function () {
+    return ((this.getHours() < 10) ? "0" : "") + this.getHours() + ":" + ((this.getMinutes() < 10) ? "0" : "") + this.getMinutes() + ":" + ((this.getSeconds() < 10) ? "0" : "") + this.getSeconds();
+};
 
