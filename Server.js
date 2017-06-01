@@ -51,6 +51,23 @@ app.get('/listAllProducts', function (req, res) {
         })
 });
 
+app.get('/getNewestProducts', function (req, res) {
+    console.log("**list 5 newest records**");
+    DBUtils.Select(connection, 'Select TOP(5) from Records ORDER by ArriveDateInStore DESC')
+        .then(function (records) {
+            console.log("**sending all Records to client...**");
+            res.send((records));
+        })
+        .catch(function (err) {
+            console.log("**Error in 5 newest records**");
+            res.status(500).send('500 - server error');
+        })
+});
+
+
+
+
+
 // *** login ***
 app.post('/login', function (req, res) {
     console.log("**login**");
