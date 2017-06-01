@@ -148,6 +148,27 @@ app.post('/register', function (req, res) {
     }
 });
 
+// *** recoverPassword ***
+app.post('/recoverPassword', function (req, res) {
+    var userName = "'" + req.body.username + "'";
+    var answer = "'" + req.body.answer + "'";
+    var query = squel.select()
+        .field("Password")
+        .from("Clients")
+        .where("UserName = " + userName)
+        .where("Answer = " + answer)
+        .toString();
+
+    DBUtils.Select(connection, query)
+        .then(function (password) {
+            res.send({"result": password.length === 1 ? password : "Answer doesn't match question"});
+        })
+        .catch(function (err) {
+            console.log("**Error in recover password:**");
+            res.status(500).send('500 - server error');
+        })
+});
+
 // general error handler
 app.use(function (err, req, res, next) {
     console.log('unhandled error detected: ' + err.message);
