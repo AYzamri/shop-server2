@@ -57,3 +57,22 @@ exports.Insert = function (connection, query) {
         connection.execSql(req);
     });
 };
+
+exports.Update = function (connection, query) {
+    console.log("** Update **");
+    console.log("**Query is: " + query + "**");
+    return new Promise(function (resolve, reject) {
+        var req = new Request(query, function (err) {
+            if (err) {
+                console.log(err.message);
+                reject(err);
+            }
+        });
+        req.on('requestCompleted', function () {
+            console.log("Update completed with " + req.rowCount + " rows");
+            resolve("success");
+        });
+
+        connection.execSql(req);
+    });
+};
