@@ -50,10 +50,23 @@ app.get('/listAllProducts', function (req, res) {
             res.status(500).send('500 - server error');
         })
 });
+// *** listAllOrderss ***
+app.get('/listAllOrders', function (req, res) {
+    console.log("**list all orders**");
+    DBUtils.Select(connection, 'Select * from Orders')
+        .then(function (records) {
+            console.log("**sending all orders to client...**");
+            res.send((records));
+        })
+        .catch(function (err) {
+            console.log("**Error in list orders**");
+            res.status(500).send('500 - server error');
+        })
+});
 //*****get top 5 newest products******
 app.get('/getNewestProducts', function (req, res) {
     console.log("**list 5 newest records**");
-    DBUtils.Select(connection, 'Select TOP(5) from Records ORDER by ArriveDateInStore DESC')
+    DBUtils.Select(connection, 'Select TOP 5 * from Records ORDER by ArriveDateInStore DESC')
         .then(function (records) {
             console.log("**sending all Records to client...**");
             res.send((records));
@@ -64,17 +77,33 @@ app.get('/getNewestProducts', function (req, res) {
         })
 });
 //***get products by category*****
-app.get('/getrecordsbycategory', function (req, res) {
+app.get('/getRecordsByCategory/:category', function (req, res) {
     console.log("**records by given category**");
-    var category = "'" + req.body.category + "'";
+    var category = "'" + req.params.category + "'";
     console.log("**given category**"+category);
-    DBUtils.Select(connection, '                           ')
+    DBUtils.Select(connection, 'Select Records.RecordID FROM Records  JOIN [RecordsCategories] ON Records.RecordID=[RecordsCategories].RecordID WHERE RecordsCategories.CategoryID='+category)
         .then(function (records) {
-            console.log("**sending all Records to client...**");
+            console.log("**sending all Records by category to client...**");
             res.send((records));
         })
         .catch(function (err) {
-            console.log("**Error in 5 newest records**");
+            console.log("**Error in products by category**");
+            res.status(500).send('500 - server error');
+        })
+});
+
+//***get orders by user*****
+app.post('/getOrdersByUsers', function (req, res) {
+    console.log("**records by given category**");
+    var userName = "'" + req.body.username + "'";
+    console.log("**given user**"+userName);
+    DBUtils.Select(connection, 'Select Orders.OrderID, OrderDate, ShipmentDate, Currency,TotalAmount,RecordID,Amount FROM Orders  JOIN [RecordsInOrders] ON Orders.OrderID=[RecordsInOrders].OrderID WHERE Orders.ClientID='+userName)
+        .then(function (records) {
+            console.log("**sending all Records by category to client...**");
+            res.send((records));
+        })
+        .catch(function (err) {
+            console.log("**Error in products by category**");
             res.status(500).send('500 - server error');
         })
 });
