@@ -97,7 +97,7 @@ app.post('/getOrdersByUsers', function (req, res) {
     console.log("**records by given category**");
     var userName = "'" + req.body.username + "'";
     console.log("**given user**"+userName);
-    DBUtils.Select(connection, 'Select Orders.OrderID, OrderDate, ShipmentDate, Currency,TotalAmount,RecordID,Amount FROM Orders  JOIN [RecordsInOrders] ON Orders.OrderID=[RecordsInOrders].OrderID WHERE Orders.ClientID='+userName)
+    DBUtils.Select(connection, 'Select Orders.OrderID, OrderDate, ShipmentDate, Currency,TotalAmount,[RecordsInOrders].RecordID,[RecordsInOrders].Amount, [Records].Name,[Records].Artist FROM Orders  JOIN [RecordsInOrders] ON Orders.OrderID=[RecordsInOrders].OrderID JOIN [Records] ON [RecordsInOrders].RecordID=[Records].RecordID WHERE Orders.ClientID='+userName)
         .then(function (records) {
             console.log("**sending all Records by category to client...**");
             res.send((records));
@@ -217,6 +217,89 @@ app.post('/register', function (req, res) {
         });
     }
 });
+
+// *** add product-record ***
+app.post('/addproduct', function (req, res) {
+    console.log("**addrecord**");
+
+    query = squel.insert()
+        .into("Records")
+        .set("Name", req.body.name)
+        .set("Artist", req.body.artist)
+        .set("ReleasedYear", req.body.ReleasedYear)
+        .set("Description", req.body.Description)
+        .set("PicturePath", req.body.PicturePath)
+        .set("ArriveDateInStore", req.body.ArriveDateInStore)
+        .set("Price", req.body.Price)
+        .set("Amount", req.body.Amount)
+        .toString();
+
+    DBUtils.Insert(connection, query)
+        .then(addRecordCategories)
+        .then(function (response) {
+            res.send({"response": response});
+        })
+        .catch(function (err) {
+            console.log("**Error in register:**");
+            if (err.message.includes("Violation of PRIMARY KEY constraint")) {
+                console.log("** User name already exists **");
+                res.send({"response": "Username already exists"});
+            }
+            else {
+                res.status(500).send('500 - server error');
+            }
+        });
+
+    function addRecordCategories(response) {
+        return new Promise(function (resolve, reject) {
+            console.log("**Adding record categories..**");
+            var categories = req.body.categories;
+            console.log(categories);
+            var query = "insert into RecordsCategories (RecordID, CategoryID) ";
+            categories.forEach(function (category) {
+                query = query + "SELECT '" + req.body.username + "', '" + category + "' ";
+                query = query + "UNION ALL ";
+            });
+            query = query.substr(0, query.lastIndexOf('U'));
+
+            DBUtils.Insert(connection, query)
+                .then(function (response) {
+                    console.log("** Added user categories **");
+                    resolve(response);
+                })
+                .catch(function (err) {
+                    console.log("** Error adding user categories **");
+                    reject(err);
+                })
+        });
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // *** recoverPassword ***
 app.post('/recoverPassword', function (req, res) {

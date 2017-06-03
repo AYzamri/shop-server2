@@ -50,7 +50,7 @@ exports.Insert = function (connection, query) {
             }
         });
         req.on('requestCompleted', function () {
-            console.log("Insert completed with " + req.rowCount + " rows");
+            console.log("Insert completed with " + req.rowCount+ " rows");
             resolve("success");
         });
 
