@@ -257,18 +257,19 @@ app.post('/addproduct', function (req, res) {
             console.log(categories);
             var query = "insert into RecordsCategories (RecordID, CategoryID) ";
             categories.forEach(function (category) {
-                query = query + "SELECT '" + req.body.username + "', '" + category + "' ";
+                console.log(query);
+                query = query + "SELECT MAX(RecordID) from Records, '" + category + "' ";
                 query = query + "UNION ALL ";
             });
             query = query.substr(0, query.lastIndexOf('U'));
-
+            console.log(query);
             DBUtils.Insert(connection, query)
                 .then(function (response) {
-                    console.log("** Added user categories **");
+                    console.log("** Added record categories **");
                     resolve(response);
                 })
                 .catch(function (err) {
-                    console.log("** Error adding user categories **");
+                    console.log("** Error adding record categories **");
                     reject(err);
                 })
         });
