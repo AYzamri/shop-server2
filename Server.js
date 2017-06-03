@@ -121,7 +121,7 @@ app.get('/getbestsellingrecords', function (req, res) {
     var query = "select * from (select top 3 RecordID, sum(Amount) as sold from RecordsInOrders group by RecordID Order by sum(Amount) desc) AS t1 JOIN (select * from Records) AS t2 ON t1.RecordID=t2.RecordID"
     DBUtils.Select(connection, query)
         .then(function (records) {
-        console.log("returned top 5 selling products to client")
+            console.log("returned top 5 selling products to client")
             res.send((records));
         })
         .catch(function (err) {
@@ -132,9 +132,9 @@ app.get('/getbestsellingrecords', function (req, res) {
 
 //***get orders by user*****
 app.post('/getOrdersByUsers', function (req, res) {
-    console.log("**records by given category**");
+    console.log("**orders by given category**");
     var userName = "'" + req.body.username + "'";
-    console.log("**given user**" + userName);
+    console.log("**given user" + userName + "**");
     DBUtils.Select(connection, 'Select Orders.OrderID, OrderDate, ShipmentDate, Currency,TotalAmount,[RecordsInOrders].RecordID,[RecordsInOrders].Amount, [Records].Name,[Records].Artist FROM Orders  JOIN [RecordsInOrders] ON Orders.OrderID=[RecordsInOrders].OrderID JOIN [Records] ON [RecordsInOrders].RecordID=[Records].RecordID WHERE Orders.ClientID=' + userName)
         .then(function (records) {
             console.log("**sending all Records by category to client...**");
@@ -379,7 +379,7 @@ app.post("/changeProductInventory", function (req, res) {
     var productId = req.body.id;
     if (isNaN(newAmount) || isNaN(productId)) {
         console.log("product ID or amount not a number");
-        res.send({"response" : "failure - NaN"});
+        res.send({"response": "failure - NaN"});
         return;
     }
     var query = squel.update()
@@ -408,13 +408,31 @@ app.delete('/deleteProduct', function (req, res) {
     }
     var query = "delete from Records where RecordID = " + productId;
     DBUtils.Delete(connection, query)
-        .then(function (rowCount) {
-            res.send({"result": rowCount === 1 ? "success" : "failure"});
+        .then(checkIfRecordDeleted)
+        .then(deleteFromRecordsInOrder)
+        .then(function (response) {
+            res.send({"response": response});
         })
         .catch(function (err) {
             console.log("** Error in delete product ** ");
-            res.status(500).send('500 - server error');
+            res.status(500).send({"response": err});
+        });
+
+    function deleteFromRecordsInOrder() {
+        return new Promise(function (resolve, reject) {
+            console.log("** delete from records in order **");
+            var query = "delete from RecordsInOrders where RecordID = " + productId;
+            DBUtils.Delete(connection, query)
+                .then(function (rowCount) {
+                    console.log("**deleted " + rowCount + " from Clients Categories**");
+                    resolve("success")
+                })
+                .catch(function (err) {
+                    console.log("** Error in delete product from Records In Order ** ");
+                    reject(err);
+                })
         })
+    }
 });
 
 // ** Delete client by User Name **
@@ -422,15 +440,48 @@ app.delete('/deleteClient', function (req, res) {
     console.log("** delete client **");
     var userName = "'" + req.body.username + "'";
     var query = "delete from Clients where UserName = " + userName;
+
     DBUtils.Delete(connection, query)
-        .then(function (rowCount) {
-            res.send({"result": rowCount === 1 ? "success" : "failure"});
+        .then(checkIfRecordDeleted)
+        .then(deleteFromClientsCategories)
+        .then(function (response) {
+            console.log("**success deleted client **");
+            res.send({"response": response});
         })
         .catch(function (err) {
-            console.log("** Error in delete client ** ")
-            res.status(500).send('500 - server error');
+            console.log("** Error in delete client ** ");
+            res.status(500).send({"response": err});
+        });
+
+    function deleteFromClientsCategories() {
+        return new Promise(function (resolve, reject) {
+            console.log("** delete from Clients Categories **");
+            var query = "delete from ClientsCategories where UserName = " + userName;
+            DBUtils.Delete(connection, query)
+                .then(function (rowCount) {
+                    console.log("**deleted " + rowCount + " from Clients Categories**");
+                    resolve("success");
+                })
+                .catch(function (err) {
+                    console.log("** Error in delete product from Clients Categories ** ");
+                    reject(err);
+                })
         })
+    }
 });
+
+function checkIfRecordDeleted(rowCount) {
+    return new Promise(function (resolve, reject) {
+        if (rowCount === 1) {
+            console.log("**success deleted**");
+            resolve("success");
+        }
+        else {
+            console.log("**failed to delete from Records - no such key in data base**");
+            reject("failure - no such key in data base");
+        }
+    })
+}
 
 // general error handler
 app.use(function (err, req, res, next) {
