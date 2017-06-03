@@ -70,7 +70,26 @@ exports.Update = function (connection, query) {
         });
         req.on('requestCompleted', function () {
             console.log("Update completed with " + req.rowCount + " rows");
-            resolve("success");
+            resolve(req.rowCount);
+        });
+
+        connection.execSql(req);
+    });
+};
+
+exports.Delete = function (connection, query) {
+    console.log("** Delete **");
+    console.log("**Query is: " + query + "**");
+    return new Promise(function (resolve, reject) {
+        var req = new Request(query, function (err) {
+            if (err) {
+                console.log(err.message);
+                reject(err);
+            }
+        });
+        req.on('requestCompleted', function () {
+            console.log("Delete completed with " + req.rowCount + " rows");
+            resolve(req.rowCount);
         });
 
         connection.execSql(req);

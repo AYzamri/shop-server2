@@ -63,6 +63,7 @@ app.get('/listAllOrders', function (req, res) {
             res.status(500).send('500 - server error');
         })
 });
+
 //*****get top 5 newest products******
 app.get('/getNewestProducts', function (req, res) {
     console.log("**list 5 newest records**");
@@ -76,18 +77,40 @@ app.get('/getNewestProducts', function (req, res) {
             res.status(500).send('500 - server error');
         })
 });
+
 //***get products by category*****
-app.get('/getRecordsByCategory/:category', function (req, res) {
-    console.log("**records by given category**");
-    var category = "'" + req.params.category + "'";
-    console.log("**given category**"+category);
-    DBUtils.Select(connection, 'Select Records.RecordID FROM Records  JOIN [RecordsCategories] ON Records.RecordID=[RecordsCategories].RecordID WHERE RecordsCategories.CategoryID='+category)
+app.get('/getProductsByCategory', function (req, res) {
+    console.log("**products by given category**");
+    var category = "'" + req.query.category + "'";
+    console.log("**given category**" + category);
+    DBUtils.Select(connection, 'Select * FROM Records  JOIN [RecordsCategories] ON' +
+        ' Records.RecordID=[RecordsCategories].RecordID WHERE RecordsCategories.CategoryID=' + category)
         .then(function (records) {
             console.log("**sending all Records by category to client...**");
-            res.send((records));
+            res.send(records);
         })
         .catch(function (err) {
             console.log("**Error in products by category**");
+            res.status(500).send('500 - server error');
+        })
+});
+
+// *** get products by name ***
+app.get('/getProductsByName', function (req, res) {
+    console.log("**get product by name**");
+    var productName = "'%" + req.query.name + "%'";
+    console.log("**given name: " + productName);
+    var query = "SELECT * from Records WHERE name LIKE " + productName;
+    DBUtils.Select(connection, query)
+        .then(function (records) {
+            if (records.length > 0) {
+                console.log("**sending all searched products to the client..**");
+                res.send(records);
+            }
+            else res.send({"response": "no records found"});
+        })
+        .catch(function (err) {
+            console.log("**Error in search product**");
             res.status(500).send('500 - server error');
         })
 });
@@ -340,6 +363,66 @@ app.post('/getLastLoginTime', function (req, res){
         })
         .catch(function (err) {
             console.log("** Error in get last login time **");
+            res.status(500).send('500 - server error');
+        })
+});
+
+// ** change product inventory **
+app.post("/changeProductInventory", function (req, res) {
+    console.log("** change product inventory **");
+    var newAmount = req.body.amount;
+    var productId = req.body.id;
+    if (isNaN(newAmount) || isNaN(productId)) {
+        console.log("product ID or amount not a number");
+        res.send({"response" : "failure - NaN"});
+        return;
+    }
+    var query = squel.update()
+        .table("Records")
+        .set("amount", newAmount)
+        .where("RecordID = " + productId)
+        .toString();
+    DBUtils.Update(connection, query)
+        .then(function (rowCount){
+            res.send({"result": rowCount === 1 ? "success" : "failure - No such RecordID"});
+        })
+        .catch(function (err) {
+            console.log("** Error in change product inventory **");
+            res.status(500).send('500 - server error');
+        })
+});
+
+// ** Delete product by ID **
+app.delete('/deleteProduct', function (req, res) {
+    console.log("** delete product **");
+    var productId = req.body.id;
+    if (isNaN(productId)) {
+        console.log("delete product: not a number");
+        res.send({"result": "failure - NaN"});
+        return;
+    }
+    var query = "delete from Records where RecordID = " + productId;
+    DBUtils.Delete(connection, query)
+        .then(function (rowCount) {
+            res.send({"result": rowCount === 1 ? "success" : "failure"});
+        })
+        .catch(function (err) {
+            console.log("** Error in delete product ** ");
+            res.status(500).send('500 - server error');
+        })
+});
+
+// ** Delete client by User Name **
+app.delete('/deleteClient', function (req, res) {
+    console.log("** delete client **");
+    var userName = "'" + req.body.username + "'";
+    var query = "delete from Clients where UserName = " + userName;
+    DBUtils.Delete(connection, query)
+        .then(function (rowCount) {
+            res.send({"result": rowCount === 1 ? "success" : "failure"});
+        })
+        .catch(function (err) {
+            console.log("** Error in delete client ** ")
             res.status(500).send('500 - server error');
         })
 });
