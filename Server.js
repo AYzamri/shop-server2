@@ -110,7 +110,7 @@ app.get('/getProductsByName', function (req, res) {
             else res.send({"response": "no records found"});
         })
         .catch(function (err) {
-            console.log("**Error in search product**");
+            console.log("**Error in get products by name**");
             res.status(500).send('500 - server error');
         })
 });
@@ -134,8 +134,8 @@ app.get('/getbestsellingrecords', function (req, res) {
 app.post('/getOrdersByUsers', function (req, res) {
     console.log("**records by given category**");
     var userName = "'" + req.body.username + "'";
-    console.log("**given user**"+userName);
-    DBUtils.Select(connection, 'Select Orders.OrderID, OrderDate, ShipmentDate, Currency,TotalAmount,[RecordsInOrders].RecordID,[RecordsInOrders].Amount, [Records].Name,[Records].Artist FROM Orders  JOIN [RecordsInOrders] ON Orders.OrderID=[RecordsInOrders].OrderID JOIN [Records] ON [RecordsInOrders].RecordID=[Records].RecordID WHERE Orders.ClientID='+userName)
+    console.log("**given user**" + userName);
+    DBUtils.Select(connection, 'Select Orders.OrderID, OrderDate, ShipmentDate, Currency,TotalAmount,[RecordsInOrders].RecordID,[RecordsInOrders].Amount, [Records].Name,[Records].Artist FROM Orders  JOIN [RecordsInOrders] ON Orders.OrderID=[RecordsInOrders].OrderID JOIN [Records] ON [RecordsInOrders].RecordID=[Records].RecordID WHERE Orders.ClientID=' + userName)
         .then(function (records) {
             console.log("**sending all Records by category to client...**");
             res.send((records));
@@ -233,7 +233,7 @@ app.post('/register', function (req, res) {
 
     function addUserCategories(response) {
         return new Promise(function (resolve, reject) {
-            console.log("**Adding client categories..**");
+            console.log("** Add user categories **");
             var categories = req.body.categories;
             console.log(categories);
             var query = "insert into CilentsCategories (UserName, CategoryID) ";
@@ -258,27 +258,28 @@ app.post('/register', function (req, res) {
 
 // *** add product-record ***
 app.post('/addProduct', function (req, res) {
-    console.log("**addrecord**");
+    console.log("**add product**");
 
     query = squel.insert()
         .into("Records")
         .set("Name", req.body.name)
         .set("Artist", req.body.artist)
-        .set("ReleasedYear", req.body.ReleasedYear)
-        .set("Description", req.body.Description)
-        .set("PicturePath", req.body.PicturePath)
-        .set("ArriveDateInStore", req.body.ArriveDateInStore)
-        .set("Price", req.body.Price)
-        .set("ExistInInventory", req.body.Amount)
+        .set("ReleasedYear", req.body.releasedYear)
+        .set("Description", req.body.description)
+        .set("PicturePath", req.body.picturePath)
+        .set("ArriveDateInStore", req.body.arriveDateInStore)
+        .set("Price", req.body.price)
+        .set("Amount", req.body.amount)
         .toString();
 
     DBUtils.Insert(connection, query)
+        .then(getLastAddedProductId)
         .then(addRecordCategories)
         .then(function (response) {
             res.send({"response": response});
         })
         .catch(function (err) {
-            console.log("**Error in register:**");
+            console.log("**Error in add product:**");
             if (err.message.includes("Violation of PRIMARY KEY constraint")) {
                 console.log("** User name already exists **");
                 res.send({"response": "Username already exists"});
@@ -288,19 +289,34 @@ app.post('/addProduct', function (req, res) {
             }
         });
 
-    function addRecordCategories(response) {
+    function getLastAddedProductId(response) {
         return new Promise(function (resolve, reject) {
-            console.log("**Adding record categories..**");
+            console.log("**Get last added product ID**");
+            var query = "SELECT TOP 1 RecordID FROM Records ORDER BY RecordID DESC";
+            DBUtils.Select(connection, query)
+                .then(function (productId) {
+                    console.log("**last added product ID: " + productId[0].RecordID + "**");
+                    resolve(productId[0].RecordID);
+                })
+                .catch(function (err) {
+                    console.log("**Error in get last added product ID**");
+                    reject(err);
+                })
+        });
+    }
+
+    function addRecordCategories(productId) {
+        return new Promise(function (resolve, reject) {
+            console.log("**Add record categories..**");
             var categories = req.body.categories;
-            console.log(categories);
+            console.log("Categories: " + categories);
             var query = "insert into RecordsCategories (RecordID, CategoryID) ";
             categories.forEach(function (category) {
-                console.log(query);
-                query = query + "SELECT MAX(RecordID) from Records, '" + category + "' ";
+                query = query + "SELECT " + productId + ", " + category + " ";
                 query = query + "UNION ALL ";
             });
             query = query.substr(0, query.lastIndexOf('U'));
-            console.log(query);
+
             DBUtils.Insert(connection, query)
                 .then(function (response) {
                     console.log("** Added record categories **");
@@ -372,7 +388,7 @@ app.post("/changeProductInventory", function (req, res) {
         .where("RecordID = " + productId)
         .toString();
     DBUtils.Update(connection, query)
-        .then(function (rowCount){
+        .then(function (rowCount) {
             res.send({"result": rowCount === 1 ? "success" : "failure - No such RecordID"});
         })
         .catch(function (err) {

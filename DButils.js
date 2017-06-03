@@ -8,9 +8,9 @@ exports.Select = function (connection, query) {
     console.log("** Select **");
     console.log("**Query is: " + query + "**");
     return new Promise(function (resolve, reject) {
-        var req = new Request(query, function (err, rowCount) {
+        var req = new Request(query, function (err) {
             if (err) {
-                console.log(err.message);
+                console.log("**Select error: " + err.message + "**");
                 reject(err.message);
             }
         });
@@ -30,7 +30,7 @@ exports.Select = function (connection, query) {
             res.push(item);
         });
         req.on('requestCompleted', function () {
-            console.log('requestCompleted with ' + req.rowCount + ' rows');
+            console.log('select request Completed with ' + req.rowCount + ' rows');
             console.log(res);
             resolve(res);
         });
@@ -50,7 +50,7 @@ exports.Insert = function (connection, query) {
             }
         });
         req.on('requestCompleted', function () {
-            console.log("Insert completed with " + req.rowCount+ " rows");
+            console.log("Insert completed with " + req.rowCount + " rows");
             resolve("success");
         });
 
