@@ -242,7 +242,7 @@ app.post('/register', function (req, res) {
 });
 
 // *** add product-record ***
-app.post('/addproduct', function (req, res) {
+app.post('/addProduct', function (req, res) {
     console.log("**addrecord**");
 
     query = squel.insert()
@@ -299,32 +299,6 @@ app.post('/addproduct', function (req, res) {
     }
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // *** recoverPassword ***
 app.post('/recoverPassword', function (req, res) {
     console.log("** Recover Password **");
@@ -348,7 +322,7 @@ app.post('/recoverPassword', function (req, res) {
 });
 
 // *** last login time ***
-app.post('/getLastLoginTime', function (req, res){
+app.post('/getLastLoginTime', function (req, res) {
     console.log("** get last login time **");
     var userName = "'" + req.body.username + "'";
     var query = squel.select()
@@ -358,8 +332,8 @@ app.post('/getLastLoginTime', function (req, res){
         .toString();
 
     DBUtils.Select(connection, query)
-        .then(function (lastLogin){
-            res.send({"result" : lastLogin});
+        .then(function (lastLogin) {
+            res.send({"result": lastLogin});
         })
         .catch(function (err) {
             console.log("** Error in get last login time **");
