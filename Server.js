@@ -115,6 +115,21 @@ app.get('/getProductsByName', function (req, res) {
         })
 });
 
+//****get top 5 selling products*****
+app.get('/getbestsellingrecords', function (req, res) {
+    console.log("**get top selling records**");
+    var query = "select * from (select top 3 RecordID, sum(Amount) as sold from RecordsInOrders group by RecordID Order by sum(Amount) desc) AS t1 JOIN (select * from Records) AS t2 ON t1.RecordID=t2.RecordID"
+    DBUtils.Select(connection, query)
+        .then(function (records) {
+        console.log("returned top 5 selling products to client")
+            res.send((records));
+        })
+        .catch(function (err) {
+            console.log("**Error in returning top product**");
+            res.status(500).send('500 - server error');
+        })
+});
+
 //***get orders by user*****
 app.post('/getOrdersByUsers', function (req, res) {
     console.log("**records by given category**");
@@ -254,7 +269,7 @@ app.post('/addProduct', function (req, res) {
         .set("PicturePath", req.body.PicturePath)
         .set("ArriveDateInStore", req.body.ArriveDateInStore)
         .set("Price", req.body.Price)
-        .set("Amount", req.body.Amount)
+        .set("ExistInInventory", req.body.Amount)
         .toString();
 
     DBUtils.Insert(connection, query)
@@ -353,7 +368,7 @@ app.post("/changeProductInventory", function (req, res) {
     }
     var query = squel.update()
         .table("Records")
-        .set("amount", newAmount)
+        .set("ExistInInventory", newAmount)
         .where("RecordID = " + productId)
         .toString();
     DBUtils.Update(connection, query)
