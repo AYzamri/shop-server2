@@ -131,11 +131,14 @@ app.get('/getbestsellingrecords', function (req, res) {
 });
 
 //***get orders by user*****
-app.post('/getOrdersByUsers', function (req, res) {
-    console.log("**orders by given category**");
+app.post('/getOrdersByUser', function (req, res) {
+    console.log("**orders by given user**");
     var userName = "'" + req.body.username + "'";
     console.log("**given user" + userName + "**");
-    DBUtils.Select(connection, 'Select Orders.OrderID, OrderDate, ShipmentDate, Currency,TotalAmount,[RecordsInOrders].RecordID,[RecordsInOrders].Amount, [Records].Name,[Records].Artist FROM Orders  JOIN [RecordsInOrders] ON Orders.OrderID=[RecordsInOrders].OrderID JOIN [Records] ON [RecordsInOrders].RecordID=[Records].RecordID WHERE Orders.ClientID=' + userName)
+    DBUtils.Select(connection, 'Select Orders.OrderID, OrderDate, ShipmentDate,' +
+        ' Currency,TotalAmount,[RecordsInOrders].RecordID,[RecordsInOrders].Amount, [Records].Name,[Records].Artist' +
+        ' FROM Orders  JOIN [RecordsInOrders] ON Orders.OrderID=[RecordsInOrders].OrderID JOIN [Records] ON' +
+        ' [RecordsInOrders].RecordID=[Records].RecordID WHERE Orders.UserName=' + userName)
         .then(function (records) {
             console.log("**sending all Records by category to client...**");
             res.send((records));
@@ -410,6 +413,7 @@ app.delete('/deleteProduct', function (req, res) {
     DBUtils.Delete(connection, query)
         .then(checkIfRecordDeleted)
         .then(deleteFromRecordsInOrder)
+        .then(deleteFromRecordsCategories)
         .then(function (response) {
             res.send({"response": response});
         })
@@ -433,6 +437,22 @@ app.delete('/deleteProduct', function (req, res) {
                 })
         })
     }
+
+    function deleteFromRecordsCategories() {
+        return new Promise(function (resolve, reject) {
+            console.log("** delete from records categories **");
+            var query = "delete from RecordsCategories where RecordID = " + productId;
+            DBUtils.Delete(connection, query)
+                .then(function (rowCount) {
+                    console.log("**deleted " + rowCount + " from Records Categories**");
+                    resolve("success")
+                })
+                .catch(function (err) {
+                    console.log("** Error in delete product from Records Categories ** ");
+                    reject(err);
+                })
+        })
+    }
 });
 
 // ** Delete client by User Name **
@@ -444,6 +464,7 @@ app.delete('/deleteClient', function (req, res) {
     DBUtils.Delete(connection, query)
         .then(checkIfRecordDeleted)
         .then(deleteFromClientsCategories)
+        .then(deleteFromOrders)
         .then(function (response) {
             console.log("**success deleted client **");
             res.send({"response": response});
@@ -464,6 +485,22 @@ app.delete('/deleteClient', function (req, res) {
                 })
                 .catch(function (err) {
                     console.log("** Error in delete product from Clients Categories ** ");
+                    reject(err);
+                })
+        })
+    }
+
+    function deleteFromOrders() {
+        return new Promise(function (resolve, reject) {
+            console.log("** delete from orders **");
+            var query = "delete from Orders where UserName = " + userName;
+            DBUtils.Delete(connection, query)
+                .then(function (rowCount) {
+                    console.log("**deleted " + rowCount + " from Orders**");
+                    resolve("success");
+                })
+                .catch(function (err) {
+                    console.log("** Error in delete product from Orders ** ");
                     reject(err);
                 })
         })
