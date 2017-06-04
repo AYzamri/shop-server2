@@ -400,8 +400,33 @@ app.post("/changeProductInventory", function (req, res) {
         })
 });
 
+// ** Make Order **
+app.post('/makeOrder', function (req, res){
+    console.log("** Make Order**");
+    var currentDate = new Date();
+    var userName = req.body.username;
+    var orderDate = currentDate.today();
+    var shipmentDate = req.body.shipmentDate;
+    var currency = req.body.currency;
+    var totalAmount = req.body.totalAmount;
+    var productsAmounts = req.body.products;
+
+    if (!checkAmountsAreAvialable()){
+        console.log("make order: amount not enough");
+        res.send({"result": "amount not enough"});
+        return;
+    }
+
+    
+
+    function checkAmountsAreAvialable() {
+
+    }
+});
+
+
+
 // ** Delete product by ID **
-app.delete('/deleteProduct', function (req, res) {
     console.log("** delete product **");
     var productId = req.body.id;
     if (isNaN(productId)) {
@@ -453,7 +478,6 @@ app.delete('/deleteProduct', function (req, res) {
                 })
         })
     }
-});
 
 // ** Delete client by User Name **
 app.delete('/deleteClient', function (req, res) {
