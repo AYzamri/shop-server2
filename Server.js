@@ -544,6 +544,31 @@ function checkIfRecordDeleted(rowCount) {
     })
 }
 
+
+//***get RECOMENDATION  for user*****
+app.post('/getrecomndedproduct', function (req, res) {
+    console.log("**recomnedation for given user**");
+    var userName = "'" + req.body.username + "'";
+    console.log("**given user" + userName + "**");
+    var sq1='Select DISTINCT RecordID from RecordsCategories INNER JOIN ClientsCategories on ClientsCategories.CategoryID=RecordsCategories.CategoryID '+
+    'WHERE UserName='+userName
+    var sq2= 'SELECT top 10 RecordID  from Orders  '+
+    'INNER JOIN RecordsInOrders On '+
+    'Orders.OrderID=RecordsInOrders.OrderID '+
+    'WHERE UserName !='+userName+
+    'group by RecordID Order by sum(Amount) desc '
+    DBUtils.Select(connection,'Select t1.RecordID,Name,Artist,ReleasedYear,Description,PicturePath,ArriveDateInStore,Price,Amount from ('+sq1+' AND RecordID IN ('+sq2+')) as t1 INNER JOIN (select * from Records)as t2 on t2.RecordID=t1.RecordID ')
+        .then(function (records) {
+            console.log("**sending all Records recommended to client...**");
+            res.send((records));
+        })
+        .catch(function (err) {
+            console.log("**Error in products recommended**");
+            res.status(500).send('500 - server error');
+        })
+});
+
+
 // general error handler
 app.use(function (err, req, res, next) {
     console.log('unhandled error detected: ' + err.message);
