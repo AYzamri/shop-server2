@@ -376,7 +376,7 @@ app.post('/getLastLoginTime', function (req, res) {
 
     DBUtils.Select(connection, query)
         .then(function (lastLogin) {
-            res.send({"lastLoginTime": lastLogin});
+            res.send(lastLogin[0].LastLogin);
         })
         .catch(function (err) {
             console.log("** Error in get last login time **");
@@ -396,7 +396,7 @@ app.post("/changeProductInventory", function (req, res) {
     }
     var query = squel.update()
         .table("Records")
-        .set("ExistInInventory", newAmount)
+        .set("Amount", newAmount)
         .where("RecordID = " + productId)
         .toString();
     DBUtils.Update(connection, query)
@@ -581,7 +581,8 @@ app.delete('/deleteProduct', function (req, res) {
         })
         .catch(function (err) {
             console.log("** Error in delete product ** ");
-            res.status(500).send("server error: " + err.message);
+            if (err.includes("no such key")) res.send("No such record");
+            else res.status(500).send("server error: " + err.message);
         });
 
     function deleteFromRecordsInOrder() {
@@ -633,7 +634,8 @@ app.delete('/deleteClient', function (req, res) {
         })
         .catch(function (err) {
             console.log("** Error in delete client ** ");
-            res.status(500).send("server error: " + err.message);
+            if (err.includes("no such key")) res.send("No such user name");
+            else res.status(500).send("server error: " + err.message);
         });
 
     function deleteFromClientsCategories() {
