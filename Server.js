@@ -356,7 +356,7 @@ app.post('/recoverPassword', function (req, res) {
 
     DBUtils.Select(connection, query)
         .then(function (password) {
-            res.send(password.length === 1 ? password : "Answer doesn't match question");
+            res.send(password.length === 1 ? password[0].Password : "Answer doesn't match question");
         })
         .catch(function (err) {
             console.log("**Error in recover password:**");
