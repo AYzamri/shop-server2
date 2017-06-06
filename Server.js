@@ -367,7 +367,7 @@ app.post('/getLastLoginTime', function (req, res) {
 
     DBUtils.Select(connection, query)
         .then(function (lastLogin) {
-            res.send({"result": lastLogin});
+            res.send({"lastLoginTime": lastLogin});
         })
         .catch(function (err) {
             console.log("** Error in get last login time **");
@@ -409,17 +409,146 @@ app.post('/makeOrder', function (req, res) {
     var shipmentDate = req.body.shipmentDate;
     var currency = req.body.currency;
     var totalAmount = req.body.totalAmount;
-    var productsAmounts = req.body.products;
+    var productsAndAmounts = req.body.productsAndAmounts;
 
-    if (!checkAmountsAreAvialable()) {
-        console.log("make order: amount not enough");
-        res.send({"result": "amount not enough"});
-        return;
+    checkAmountsAreAvailable()
+        .then(insertToOrders)
+        .then(decreaseAmounts)
+        .then(getLastAddedOrderId)
+        .then(insertToRecordsInOrders)
+        .then(function (response) {
+            console.log("** success make order **");
+            res.send({"response": response});
+        })
+        .catch(function (err) {
+            console.log("** Failure in make order **");
+            if (err === "amounts are not available") res.send({"response": err})
+            else res.status(500).send('500 - server error');
+        });
+
+    function insertToOrders() {
+        return new Promise(function (resolve, reject) {
+            console.log("** insert into orders **");
+            var query = squel.insert()
+                .into("Orders")
+                .set("UserName", userName)
+                .set("OrderDate", orderDate)
+                .set("ShipmentDate", shipmentDate)
+                .set("Currency", currency)
+                .set("TotalAmount", totalAmount)
+                .toString();
+            DBUtils.Insert(connection, query)
+                .then(function (response) {
+                    console.log("** success insert to orders **");
+                    resolve("success");
+                })
+                .catch(function (err) {
+                    console.log("** error insert to orders **");
+                    reject(err);
+                })
+        })
     }
 
+    function decreaseAmounts() {
+        return new Promise(function (resolve, reject) {
+            console.log("** decrease amounts **");
+            var query = "UPDATE Records " +
+                "SET Amount = CASE RecordID ";
+            var querySuffix = "END Where RecordID IN(";
+            for (var product in productsAndAmounts) {
+                var recordID = productsAndAmounts[product].record;
+                var amount = productsAndAmounts[product].amount;
+                query += "WHEN " + recordID + " THEN Amount - " + amount + " ";
+                querySuffix += recordID + ", ";
+            }
+            querySuffix = querySuffix.substr(0, querySuffix.lastIndexOf(','));
+            querySuffix += ")";
+            query += querySuffix;
 
-    function checkAmountsAreAvialable() {
+            DBUtils.Update(connection, query)
+                .then(function (response) {
+                    console.log("** Success decrease amounts **");
+                    resolve("success");
+                })
+                .catch(function (err) {
+                    console.log("** Error decrease amounts **");
+                    reject("failure");
+                })
+        })
+    }
 
+    function insertToRecordsInOrders(orderId) {
+        return new Promise(function (resolve, reject) {
+            console.log("** insert to records in orders **");
+            var query = "insert into RecordsInOrders (OrderID, RecordID, Amount) ";
+
+            for (var product in productsAndAmounts) {
+                var recordID = productsAndAmounts[product].record;
+                var amount = productsAndAmounts[product].amount;
+                query += "select " + orderId + ", " + recordID + ", " + amount;
+                query += " UNION ALL ";
+            }
+            query = query.substr(0, query.lastIndexOf('U'));
+
+            DBUtils.Insert(connection, query)
+                .then(function (response) {
+                    console.log("** success insert into records in orders **");
+                    resolve("success");
+                })
+                .catch(function (err) {
+                    console.log("** failed to insert into records in orders **");
+                    resolve("failure");
+                })
+        })
+    }
+
+    function checkAmountsAreAvailable() {
+        return new Promise(function (resolve, reject) {
+            console.log("** check amounts are available **");
+            var query = "";
+            for (var product in productsAndAmounts) {
+                var recordID = productsAndAmounts[product].record;
+                var amount = productsAndAmounts[product].amount;
+                console.log("** " + recordID + " : " + amount + " **");
+
+                query = query + "select * from Records where ";
+                query = query + "RecordID = " + recordID + " and Amount >= " + amount;
+                query = query + " UNION ALL ";
+            }
+            query = query.substr(0, query.lastIndexOf('U'));
+
+            DBUtils.Select(connection, query)
+                .then(function (availableRecords) {
+                    if (availableRecords.length === productsAndAmounts.length) {
+                        console.log("** amounts are available **");
+                        resolve("success")
+                    }
+                    else {
+                        console.log("** amounts are not available **");
+                        reject("amounts are not available")
+                    }
+                })
+                .catch(function (err) {
+                    console.log("** Error in check amounts available **");
+                    reject(err);
+                })
+        })
+    }
+
+    function getLastAddedOrderId(response) {
+        return new Promise(function (resolve, reject) {
+            console.log("**Get last added order ID**");
+            var query = "SELECT TOP 1 OrderID FROM Orders ORDER BY OrderID DESC";
+            DBUtils.Select(connection, query)
+                .then(function (order) {
+                    console.log("**last added order ID: " + order[0].OrderID + "**");
+                    resolve(order[0].OrderID);
+                })
+                .catch(function (err) {
+                    console.log("**Error in get last added order ID**");
+                    reject(err);
+                })
+        })
     }
 });
 
