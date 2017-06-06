@@ -47,10 +47,10 @@ app.get('/listAllProducts', function (req, res) {
         })
         .catch(function (err) {
             console.log("**Error in list products**");
-            res.status(500).send('500 - server error');
+            res.status(500).send('500 - server error: ' + err.message);
         })
 });
-// *** listAllOrderss ***
+// *** listAllOrders ***
 app.get('/listAllOrders', function (req, res) {
     console.log("**list all orders**");
     DBUtils.Select(connection, 'Select * from Orders')
@@ -60,7 +60,7 @@ app.get('/listAllOrders', function (req, res) {
         })
         .catch(function (err) {
             console.log("**Error in list orders**");
-            res.status(500).send('500 - server error');
+            res.status(500).send('500 - server error: ' + err.message);
         })
 });
 
@@ -74,7 +74,7 @@ app.get('/getNewestProducts', function (req, res) {
         })
         .catch(function (err) {
             console.log("**Error in 5 newest records**");
-            res.status(500).send('500 - server error');
+            res.status(500).send('500 - server error: ' + err.message);
         })
 });
 
@@ -86,12 +86,15 @@ app.get('/getProductsByCategory', function (req, res) {
     DBUtils.Select(connection, 'Select * FROM Records  JOIN [RecordsCategories] ON' +
         ' Records.RecordID=[RecordsCategories].RecordID WHERE RecordsCategories.CategoryID=' + category)
         .then(function (records) {
-            console.log("**sending all Records by category to client...**");
-            res.send(records);
+            if (records.length > 0) {
+                console.log("**sending all Records by category to client...**");
+                res.send(records);
+            }
+            else res.send("no records found");
         })
         .catch(function (err) {
             console.log("**Error in products by category**");
-            res.status(500).send('500 - server error');
+            res.status(500).send('500 - server error: ' + err.message);
         })
 });
 
@@ -107,17 +110,17 @@ app.get('/getProductsByName', function (req, res) {
                 console.log("**sending all searched products to the client..**");
                 res.send(records);
             }
-            else res.send({"response": "no records found"});
+            else res.send("no records found");
         })
         .catch(function (err) {
             console.log("**Error in get products by name**");
-            res.status(500).send('500 - server error');
+            res.status(500).send('500 - server error: ' + err.message);
         })
 });
 
 //****get top 5 selling products*****
-app.get('/getbestsellingrecords', function (req, res) {
-    console.log("**get top selling records**");
+app.get('/getBestSellingProducts', function (req, res) {
+    console.log("**get top selling products**");
     var query = "select * from (select top 3 RecordID, sum(Amount) as sold from RecordsInOrders group by RecordID Order by sum(Amount) desc) AS t1 JOIN (select * from Records) AS t2 ON t1.RecordID=t2.RecordID"
     DBUtils.Select(connection, query)
         .then(function (records) {
@@ -126,7 +129,7 @@ app.get('/getbestsellingrecords', function (req, res) {
         })
         .catch(function (err) {
             console.log("**Error in returning top product**");
-            res.status(500).send('500 - server error');
+            res.status(500).send('500 - server error: ' + err.message);
         })
 });
 
@@ -145,7 +148,7 @@ app.post('/getOrdersByUser', function (req, res) {
         })
         .catch(function (err) {
             console.log("**Error in products by category**");
-            res.status(500).send('500 - server error');
+            res.status(500).send('500 - server error: '  + err.message);
         })
 });
 
@@ -160,11 +163,11 @@ app.post('/login', function (req, res) {
         .then(checkIfOneRecordIsBack)
         .then(updateLoginTime)
         .then(function (response) {
-            res.send({"response": response});
+            res.send("login success");
         })
         .catch(function (err) {
             console.log("**Error in login:**");
-            res.status(500).send('500 - server error');
+            res.status(500).send('500 - server error' + err.message);
         });
 
     function checkIfOneRecordIsBack(response) {
@@ -221,16 +224,16 @@ app.post('/register', function (req, res) {
     DBUtils.Insert(connection, query)
         .then(addUserCategories)
         .then(function (response) {
-            res.send({"response": response});
+            res.send("success");
         })
         .catch(function (err) {
             console.log("**Error in register:**");
             if (err.message.includes("Violation of PRIMARY KEY constraint")) {
                 console.log("** User name already exists **");
-                res.send({"response": "Username already exists"});
+                res.send("Username already exists");
             }
             else {
-                res.status(500).send('500 - server error');
+                res.status(500).send('500 - server error:', err.message);
             }
         });
 
@@ -279,16 +282,16 @@ app.post('/addProduct', function (req, res) {
         .then(getLastAddedProductId)
         .then(addRecordCategories)
         .then(function (response) {
-            res.send({"response": response});
+            res.send("success");
         })
         .catch(function (err) {
             console.log("**Error in add product:**");
             if (err.message.includes("Violation of PRIMARY KEY constraint")) {
-                console.log("** User name already exists **");
-                res.send({"response": "Username already exists"});
+                console.log("** Record already exists **");
+                res.send("Record already exists");
             }
             else {
-                res.status(500).send('500 - server error');
+                res.status(500).send('500 - server error: ' + err.message);
             }
         });
 
@@ -347,11 +350,11 @@ app.post('/recoverPassword', function (req, res) {
 
     DBUtils.Select(connection, query)
         .then(function (password) {
-            res.send({"result": password.length === 1 ? password : "Answer doesn't match question"});
+            res.send(password.length === 1 ? password : "Answer doesn't match question");
         })
         .catch(function (err) {
             console.log("**Error in recover password:**");
-            res.status(500).send('500 - server error');
+            res.status(500).send('500 - server error: ' + err.message);
         })
 });
 
@@ -371,7 +374,7 @@ app.post('/getLastLoginTime', function (req, res) {
         })
         .catch(function (err) {
             console.log("** Error in get last login time **");
-            res.status(500).send('500 - server error');
+            res.status(500).send('500 - server error: ' + err.message);
         })
 });
 
@@ -382,7 +385,7 @@ app.post("/changeProductInventory", function (req, res) {
     var productId = req.body.id;
     if (isNaN(newAmount) || isNaN(productId)) {
         console.log("product ID or amount not a number");
-        res.send({"response": "failure - NaN"});
+        res.send("failure – given id is not a number");
         return;
     }
     var query = squel.update()
@@ -392,325 +395,325 @@ app.post("/changeProductInventory", function (req, res) {
         .toString();
     DBUtils.Update(connection, query)
         .then(function (rowCount) {
-            res.send({"result": rowCount === 1 ? "success" : "failure - No such RecordID"});
+            res.send(rowCount === 1 ? "success" : "failure - No such RecordID");
         })
         .catch(function (err) {
             console.log("** Error in change product inventory **");
-            res.status(500).send('500 - server error');
+            res.status(500).send('500 - server error: ' + err.message);
         })
 });
 
 // ** Make Order **
-app.post('/makeOrder', function (req, res) {
-    console.log("** Make Order**");
-    var currentDate = new Date();
-    var userName = req.body.username;
-    var orderDate = currentDate.today();
-    var shipmentDate = req.body.shipmentDate;
-    var currency = req.body.currency;
-    var totalAmount = req.body.totalAmount;
-    var productsAndAmounts = req.body.productsAndAmounts;
+    app.post('/makeOrder', function (req, res) {
+        console.log("** Make Order**");
+        var currentDate = new Date();
+        var userName = req.body.username;
+        var orderDate = currentDate.today();
+        var shipmentDate = req.body.shipmentDate;
+        var currency = req.body.currency;
+        var totalAmount = req.body.totalAmount;
+        var productsAndAmounts = req.body.productsAndAmounts;
 
-    checkAmountsAreAvailable()
-        .then(insertToOrders)
-        .then(decreaseAmounts)
-        .then(getLastAddedOrderId)
-        .then(insertToRecordsInOrders)
-        .then(function (response) {
-            console.log("** success make order **");
-            res.send({"response": response});
-        })
-        .catch(function (err) {
-            console.log("** Failure in make order **");
-            if (err === "amounts are not available") res.send({"response": err})
-            else res.status(500).send('500 - server error');
-        });
+        checkAmountsAreAvailable()
+            .then(insertToOrders)
+            .then(decreaseAmounts)
+            .then(getLastAddedOrderId)
+            .then(insertToRecordsInOrders)
+            .then(function (response) {
+                console.log("** success make order **");
+                res.send({"response": response});
+            })
+            .catch(function (err) {
+                console.log("** Failure in make order **");
+                if (err === "amounts are not available") res.send({"response": err})
+                else res.status(500).send('500 - server error: ' + err.message);
+            });
 
-    function insertToOrders() {
-        return new Promise(function (resolve, reject) {
-            console.log("** insert into orders **");
-            var query = squel.insert()
-                .into("Orders")
-                .set("UserName", userName)
-                .set("OrderDate", orderDate)
-                .set("ShipmentDate", shipmentDate)
-                .set("Currency", currency)
-                .set("TotalAmount", totalAmount)
-                .toString();
-            DBUtils.Insert(connection, query)
-                .then(function (response) {
-                    console.log("** success insert to orders **");
-                    resolve("success");
-                })
-                .catch(function (err) {
-                    console.log("** error insert to orders **");
-                    reject(err);
-                })
-        })
-    }
+        function insertToOrders() {
+            return new Promise(function (resolve, reject) {
+                console.log("** insert into orders **");
+                var query = squel.insert()
+                    .into("Orders")
+                    .set("UserName", userName)
+                    .set("OrderDate", orderDate)
+                    .set("ShipmentDate", shipmentDate)
+                    .set("Currency", currency)
+                    .set("TotalAmount", totalAmount)
+                    .toString();
+                DBUtils.Insert(connection, query)
+                    .then(function (response) {
+                        console.log("** success insert to orders **");
+                        resolve("success");
+                    })
+                    .catch(function (err) {
+                        console.log("** error insert to orders **");
+                        reject(err);
+                    })
+            })
+        }
 
-    function decreaseAmounts() {
-        return new Promise(function (resolve, reject) {
-            console.log("** decrease amounts **");
-            var query = "UPDATE Records " +
-                "SET Amount = CASE RecordID ";
-            var querySuffix = "END Where RecordID IN(";
-            for (var product in productsAndAmounts) {
-                var recordID = productsAndAmounts[product].record;
-                var amount = productsAndAmounts[product].amount;
-                query += "WHEN " + recordID + " THEN Amount - " + amount + " ";
-                querySuffix += recordID + ", ";
-            }
-            querySuffix = querySuffix.substr(0, querySuffix.lastIndexOf(','));
-            querySuffix += ")";
-            query += querySuffix;
+        function decreaseAmounts() {
+            return new Promise(function (resolve, reject) {
+                console.log("** decrease amounts **");
+                var query = "UPDATE Records " +
+                    "SET Amount = CASE RecordID ";
+                var querySuffix = "END Where RecordID IN(";
+                for (var product in productsAndAmounts) {
+                    var recordID = productsAndAmounts[product].record;
+                    var amount = productsAndAmounts[product].amount;
+                    query += "WHEN " + recordID + " THEN Amount - " + amount + " ";
+                    querySuffix += recordID + ", ";
+                }
+                querySuffix = querySuffix.substr(0, querySuffix.lastIndexOf(','));
+                querySuffix += ")";
+                query += querySuffix;
 
-            DBUtils.Update(connection, query)
-                .then(function (response) {
-                    console.log("** Success decrease amounts **");
-                    resolve("success");
-                })
-                .catch(function (err) {
-                    console.log("** Error decrease amounts **");
-                    reject("failure");
-                })
-        })
-    }
+                DBUtils.Update(connection, query)
+                    .then(function (response) {
+                        console.log("** Success decrease amounts **");
+                        resolve("success");
+                    })
+                    .catch(function (err) {
+                        console.log("** Error decrease amounts **");
+                        reject("failure");
+                    })
+            })
+        }
 
-    function insertToRecordsInOrders(orderId) {
-        return new Promise(function (resolve, reject) {
-            console.log("** insert to records in orders **");
-            var query = "insert into RecordsInOrders (OrderID, RecordID, Amount) ";
+        function insertToRecordsInOrders(orderId) {
+            return new Promise(function (resolve, reject) {
+                console.log("** insert to records in orders **");
+                var query = "insert into RecordsInOrders (OrderID, RecordID, Amount) ";
 
-            for (var product in productsAndAmounts) {
-                var recordID = productsAndAmounts[product].record;
-                var amount = productsAndAmounts[product].amount;
-                query += "select " + orderId + ", " + recordID + ", " + amount;
-                query += " UNION ALL ";
-            }
-            query = query.substr(0, query.lastIndexOf('U'));
+                for (var product in productsAndAmounts) {
+                    var recordID = productsAndAmounts[product].record;
+                    var amount = productsAndAmounts[product].amount;
+                    query += "select " + orderId + ", " + recordID + ", " + amount;
+                    query += " UNION ALL ";
+                }
+                query = query.substr(0, query.lastIndexOf('U'));
 
-            DBUtils.Insert(connection, query)
-                .then(function (response) {
-                    console.log("** success insert into records in orders **");
-                    resolve("success");
-                })
-                .catch(function (err) {
-                    console.log("** failed to insert into records in orders **");
-                    resolve("failure");
-                })
-        })
-    }
+                DBUtils.Insert(connection, query)
+                    .then(function (response) {
+                        console.log("** success insert into records in orders **");
+                        resolve("success");
+                    })
+                    .catch(function (err) {
+                        console.log("** failed to insert into records in orders **");
+                        resolve("failure");
+                    })
+            })
+        }
 
-    function checkAmountsAreAvailable() {
-        return new Promise(function (resolve, reject) {
-            console.log("** check amounts are available **");
-            var query = "";
-            for (var product in productsAndAmounts) {
-                var recordID = productsAndAmounts[product].record;
-                var amount = productsAndAmounts[product].amount;
-                console.log("** " + recordID + " : " + amount + " **");
+        function checkAmountsAreAvailable() {
+            return new Promise(function (resolve, reject) {
+                console.log("** check amounts are available **");
+                var query = "";
+                for (var product in productsAndAmounts) {
+                    var recordID = productsAndAmounts[product].record;
+                    var amount = productsAndAmounts[product].amount;
+                    console.log("** " + recordID + " : " + amount + " **");
 
-                query = query + "select * from Records where ";
-                query = query + "RecordID = " + recordID + " and Amount >= " + amount;
-                query = query + " UNION ALL ";
-            }
-            query = query.substr(0, query.lastIndexOf('U'));
+                    query = query + "select * from Records where ";
+                    query = query + "RecordID = " + recordID + " and Amount >= " + amount;
+                    query = query + " UNION ALL ";
+                }
+                query = query.substr(0, query.lastIndexOf('U'));
 
-            DBUtils.Select(connection, query)
-                .then(function (availableRecords) {
-                    if (availableRecords.length === productsAndAmounts.length) {
-                        console.log("** amounts are available **");
-                        resolve("success")
-                    }
-                    else {
-                        console.log("** amounts are not available **");
-                        reject("amounts are not available")
-                    }
-                })
-                .catch(function (err) {
-                    console.log("** Error in check amounts available **");
-                    reject(err);
-                })
-        })
-    }
+                DBUtils.Select(connection, query)
+                    .then(function (availableRecords) {
+                        if (availableRecords.length === productsAndAmounts.length) {
+                            console.log("** amounts are available **");
+                            resolve("success")
+                        }
+                        else {
+                            console.log("** amounts are not available **");
+                            reject("amounts are not available")
+                        }
+                    })
+                    .catch(function (err) {
+                        console.log("** Error in check amounts available **");
+                        reject(err);
+                    })
+            })
+        }
 
-    function getLastAddedOrderId(response) {
-        return new Promise(function (resolve, reject) {
-            console.log("**Get last added order ID**");
-            var query = "SELECT TOP 1 OrderID FROM Orders ORDER BY OrderID DESC";
-            DBUtils.Select(connection, query)
-                .then(function (order) {
-                    console.log("**last added order ID: " + order[0].OrderID + "**");
-                    resolve(order[0].OrderID);
-                })
-                .catch(function (err) {
-                    console.log("**Error in get last added order ID**");
-                    reject(err);
-                })
-        })
-    }
-});
+        function getLastAddedOrderId(response) {
+            return new Promise(function (resolve, reject) {
+                console.log("**Get last added order ID**");
+                var query = "SELECT TOP 1 OrderID FROM Orders ORDER BY OrderID DESC";
+                DBUtils.Select(connection, query)
+                    .then(function (order) {
+                        console.log("**last added order ID: " + order[0].OrderID + "**");
+                        resolve(order[0].OrderID);
+                    })
+                    .catch(function (err) {
+                        console.log("**Error in get last added order ID**");
+                        reject(err);
+                    })
+            })
+        }
+    });
 
 
 // ** Delete product by ID **
-app.delete('/deleteProduct', function (req, res) {
-    console.log("** delete product **");
-    var productId = req.body.id;
-    if (isNaN(productId)) {
-        console.log("delete product: not a number");
-        res.send({"result": "failure - NaN"});
-        return;
-    }
-    var query = "delete from Records where RecordID = " + productId;
-    DBUtils.Delete(connection, query)
-        .then(checkIfRecordDeleted)
-        .then(deleteFromRecordsInOrder)
-        .then(deleteFromRecordsCategories)
-        .then(function (response) {
-            res.send({"response": response});
-        })
-        .catch(function (err) {
-            console.log("** Error in delete product ** ");
-            res.status(500).send({"response": err});
-        });
+    app.delete('/deleteProduct', function (req, res) {
+        console.log("** delete product **");
+        var productId = req.body.id;
+        if (isNaN(productId)) {
+            console.log("delete product: not a number");
+            res.send("failure - given id is not a number");
+            return;
+        }
+        var query = "delete from Records where RecordID = " + productId;
+        DBUtils.Delete(connection, query)
+            .then(checkIfRecordDeleted)
+            .then(deleteFromRecordsInOrder)
+            .then(deleteFromRecordsCategories)
+            .then(function (response) {
+                res.send({"response": response});
+            })
+            .catch(function (err) {
+                console.log("** Error in delete product ** ");
+                res.status(500).send("server error: " + err.message);
+            });
 
-    function deleteFromRecordsInOrder() {
-        return new Promise(function (resolve, reject) {
-            console.log("** delete from records in order **");
-            var query = "delete from RecordsInOrders where RecordID = " + productId;
-            DBUtils.Delete(connection, query)
-                .then(function (rowCount) {
-                    console.log("**deleted " + rowCount + " from Clients Categories**");
-                    resolve("success")
-                })
-                .catch(function (err) {
-                    console.log("** Error in delete product from Records In Order ** ");
-                    reject(err);
-                })
-        })
-    }
+        function deleteFromRecordsInOrder() {
+            return new Promise(function (resolve, reject) {
+                console.log("** delete from records in order **");
+                var query = "delete from RecordsInOrders where RecordID = " + productId;
+                DBUtils.Delete(connection, query)
+                    .then(function (rowCount) {
+                        console.log("**deleted " + rowCount + " from Clients Categories**");
+                        resolve("success")
+                    })
+                    .catch(function (err) {
+                        console.log("** Error in delete product from Records In Order ** ");
+                        reject(err);
+                    })
+            })
+        }
 
-    function deleteFromRecordsCategories() {
-        return new Promise(function (resolve, reject) {
-            console.log("** delete from records categories **");
-            var query = "delete from RecordsCategories where RecordID = " + productId;
-            DBUtils.Delete(connection, query)
-                .then(function (rowCount) {
-                    console.log("**deleted " + rowCount + " from Records Categories**");
-                    resolve("success")
-                })
-                .catch(function (err) {
-                    console.log("** Error in delete product from Records Categories ** ");
-                    reject(err);
-                })
-        })
-    }
-});
+        function deleteFromRecordsCategories() {
+            return new Promise(function (resolve, reject) {
+                console.log("** delete from records categories **");
+                var query = "delete from RecordsCategories where RecordID = " + productId;
+                DBUtils.Delete(connection, query)
+                    .then(function (rowCount) {
+                        console.log("**deleted " + rowCount + " from Records Categories**");
+                        resolve("success")
+                    })
+                    .catch(function (err) {
+                        console.log("** Error in delete product from Records Categories ** ");
+                        reject(err);
+                    })
+            })
+        }
+    });
 
 // ** Delete client by User Name **
-app.delete('/deleteClient', function (req, res) {
-    console.log("** delete client **");
-    var userName = "'" + req.body.username + "'";
-    var query = "delete from Clients where UserName = " + userName;
+    app.delete('/deleteClient', function (req, res) {
+        console.log("** delete client **");
+        var userName = "'" + req.body.username + "'";
+        var query = "delete from Clients where UserName = " + userName;
 
-    DBUtils.Delete(connection, query)
-        .then(checkIfRecordDeleted)
-        .then(deleteFromClientsCategories)
-        .then(deleteFromOrders)
-        .then(function (response) {
-            console.log("**success deleted client **");
-            res.send({"response": response});
-        })
-        .catch(function (err) {
-            console.log("** Error in delete client ** ");
-            res.status(500).send({"response": err});
-        });
+        DBUtils.Delete(connection, query)
+            .then(checkIfRecordDeleted)
+            .then(deleteFromClientsCategories)
+            .then(deleteFromOrders)
+            .then(function (response) {
+                console.log("**success deleted client **");
+                res.send("success");
+            })
+            .catch(function (err) {
+                console.log("** Error in delete client ** ");
+                res.status(500).send("server error: " + err.message);
+            });
 
-    function deleteFromClientsCategories() {
+        function deleteFromClientsCategories() {
+            return new Promise(function (resolve, reject) {
+                console.log("** delete from Clients Categories **");
+                var query = "delete from ClientsCategories where UserName = " + userName;
+                DBUtils.Delete(connection, query)
+                    .then(function (rowCount) {
+                        console.log("**deleted " + rowCount + " from Clients Categories**");
+                        resolve("success");
+                    })
+                    .catch(function (err) {
+                        console.log("** Error in delete product from Clients Categories ** ");
+                        reject(err);
+                    })
+            })
+        }
+
+        function deleteFromOrders() {
+            return new Promise(function (resolve, reject) {
+                console.log("** delete from orders **");
+                var query = "delete from Orders where UserName = " + userName;
+                DBUtils.Delete(connection, query)
+                    .then(function (rowCount) {
+                        console.log("**deleted " + rowCount + " from Orders**");
+                        resolve("success");
+                    })
+                    .catch(function (err) {
+                        console.log("** Error in delete product from Orders ** ");
+                        reject(err);
+                    })
+            })
+        }
+    });
+
+    function checkIfRecordDeleted(rowCount) {
         return new Promise(function (resolve, reject) {
-            console.log("** delete from Clients Categories **");
-            var query = "delete from ClientsCategories where UserName = " + userName;
-            DBUtils.Delete(connection, query)
-                .then(function (rowCount) {
-                    console.log("**deleted " + rowCount + " from Clients Categories**");
-                    resolve("success");
-                })
-                .catch(function (err) {
-                    console.log("** Error in delete product from Clients Categories ** ");
-                    reject(err);
-                })
+            if (rowCount === 1) {
+                console.log("**success deleted**");
+                resolve("success");
+            }
+            else {
+                console.log("**failed to delete from Records - no such key in data base**");
+                reject("failure - no such key in data base");
+            }
         })
     }
 
-    function deleteFromOrders() {
-        return new Promise(function (resolve, reject) {
-            console.log("** delete from orders **");
-            var query = "delete from Orders where UserName = " + userName;
-            DBUtils.Delete(connection, query)
-                .then(function (rowCount) {
-                    console.log("**deleted " + rowCount + " from Orders**");
-                    resolve("success");
-                })
-                .catch(function (err) {
-                    console.log("** Error in delete product from Orders ** ");
-                    reject(err);
-                })
-        })
-    }
-});
 
-function checkIfRecordDeleted(rowCount) {
-    return new Promise(function (resolve, reject) {
-        if (rowCount === 1) {
-            console.log("**success deleted**");
-            resolve("success");
-        }
-        else {
-            console.log("**failed to delete from Records - no such key in data base**");
-            reject("failure - no such key in data base");
-        }
-    })
-}
-
-
-//***get RECOMENDATION  for user*****
-app.post('/getrecomndedproduct', function (req, res) {
-    console.log("**recomnedation for given user**");
-    var userName = "'" + req.body.username + "'";
-    console.log("**given user" + userName + "**");
-    var sq1='Select DISTINCT RecordID from RecordsCategories INNER JOIN ClientsCategories on ClientsCategories.CategoryID=RecordsCategories.CategoryID '+
-    'WHERE UserName='+userName
-    var sq2= 'SELECT top 10 RecordID  from Orders  '+
-    'INNER JOIN RecordsInOrders On '+
-    'Orders.OrderID=RecordsInOrders.OrderID '+
-    'WHERE UserName !='+userName+
-    'group by RecordID Order by sum(Amount) desc '
-    DBUtils.Select(connection,'Select t1.RecordID,Name,Artist,ReleasedYear,Description,PicturePath,ArriveDateInStore,Price,Amount from ('+sq1+' AND RecordID IN ('+sq2+')) as t1 INNER JOIN (select * from Records)as t2 on t2.RecordID=t1.RecordID ')
-        .then(function (records) {
-            console.log("**sending all Records recommended to client...**");
-            res.send((records));
-        })
-        .catch(function (err) {
-            console.log("**Error in products recommended**");
-            res.status(500).send('500 - server error');
-        })
-});
+//***get Recommended Products*****
+    app.post('/getRecommendedProducts', function (req, res) {
+        console.log("**get Recommended Products**");
+        var userName = "'" + req.body.username + "'";
+        console.log("**given user" + userName + "**");
+        var sq1 = 'Select DISTINCT RecordID from RecordsCategories INNER JOIN ClientsCategories on ClientsCategories.CategoryID=RecordsCategories.CategoryID ' +
+            'WHERE UserName=' + userName;
+        var sq2 = 'SELECT top 10 RecordID  from Orders  ' +
+            'INNER JOIN RecordsInOrders On ' +
+            'Orders.OrderID=RecordsInOrders.OrderID ' +
+            'WHERE UserName !=' + userName +
+            'group by RecordID Order by sum(Amount) desc ';
+        DBUtils.Select(connection, 'Select t1.RecordID,Name,Artist,ReleasedYear,Description,PicturePath,ArriveDateInStore,Price,Amount from (' + sq1 + ' AND RecordID IN (' + sq2 + ')) as t1 INNER JOIN (select * from Records)as t2 on t2.RecordID=t1.RecordID ')
+            .then(function (records) {
+                console.log("**sending all Records recommended to client...**");
+                res.send((records));
+            })
+            .catch(function (err) {
+                console.log("**Error in products recommended**");
+                res.status(500).send('500 - server error: ' + err.message);
+            })
+    });
 
 
 // general error handler
-app.use(function (err, req, res, next) {
-    console.log('unhandled error detected: ' + err.message);
-    res.status(500).send('500 - server error');
-});
+    app.use(function (err, req, res, next) {
+        console.log('unhandled error detected: ' + err.message);
+        res.status(500).send('500 - server error' + err.message);
+    });
 
 // For todays date;
-Date.prototype.today = function () {
-    return ((this.getDate() < 10) ? "0" : "") + this.getDate() + "/" + (((this.getMonth() + 1) < 10) ? "0" : "") + (this.getMonth() + 1) + "/" + this.getFullYear();
-};
+    Date.prototype.today = function () {
+        return ((this.getDate() < 10) ? "0" : "") + this.getDate() + "/" + (((this.getMonth() + 1) < 10) ? "0" : "") + (this.getMonth() + 1) + "/" + this.getFullYear();
+    };
 
 // For the time now
-Date.prototype.timeNow = function () {
-    return ((this.getHours() < 10) ? "0" : "") + this.getHours() + ":" + ((this.getMinutes() < 10) ? "0" : "") + this.getMinutes() + ":" + ((this.getSeconds() < 10) ? "0" : "") + this.getSeconds();
-};
+    Date.prototype.timeNow = function () {
+        return ((this.getHours() < 10) ? "0" : "") + this.getHours() + ":" + ((this.getMinutes() < 10) ? "0" : "") + this.getMinutes() + ":" + ((this.getSeconds() < 10) ? "0" : "") + this.getSeconds();
+    };
 
