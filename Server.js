@@ -248,7 +248,7 @@ app.post('/register', function (req, res) {
             console.log("** Add user categories **");
             var categories = req.body.categories;
             console.log(categories);
-            var query = "insert into CilentsCategories (UserName, CategoryID) ";
+            var query = "insert into ClientsCategories (UserName, CategoryID) ";
             categories.forEach(function (category) {
                 query = query + "SELECT '" + req.body.username + "', '" + category + "' ";
                 query = query + "UNION ALL ";
