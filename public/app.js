@@ -66,8 +66,9 @@ app.controller('signupController', ['UserService', '$location', '$window',
 //-------------------------------------------------------------------------------------------------------------------
 app.controller('recordsController', ['$http', 'RecordModel', function($http, RecordModel) {
         let self = this;
-        self.fieldToOrderBy = "name";
+        self.fieldToOrderBy = "Name";
          //self.records = [];
+    self.model=[];
         self.getRecords = function () {
             $http.get('/listAllProducts')
                 .then(function (res) {
@@ -79,6 +80,18 @@ app.controller('recordsController', ['$http', 'RecordModel', function($http, Rec
                    );
                 });
         };
+        var categoryid=self.category=1;
+    self.getByCategory = function () {
+        $http.get('/getProductsByCategory',{params:categoryid})
+            .then(function (res) {
+                //We build now ProductModel for each record
+                self.records = [];
+                angular.forEach(res.data, function (record) {
+                        self.records.push(new RecordModel(record));
+                    }
+                );
+            });
+    };
         self.addRecord = function () {
           let record = new RecordModel(self.myrecord);
           if (record) {

@@ -2,33 +2,39 @@
 <div ng-controller="recordsController as recordsCtrl">
     <h2>Records</h2>
     <br>
-    <button ng-click="recordsCtrl.getRecords()">Show Records</button>
+    <button ng-click="recordsCtrl.getRecords()">Show All Records</button>
+    <button ng-click="recordsCtrl.getByCategory()">Show By Category</button>
+    <select ng-model="recordsCtrl.category">
+        <option value="1">Rock</option>
+        <option value="2">Pop</option>
+        <option value="5">R&B</option>
+    </select>
     <div ng-show="recordsCtrl.records">
         <table>
             <thead>
             <tr></tr>
                 <tr>
-                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='name'">
+                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='Name'">
                         Name
                     </a>
                 </tr>
                 <tr>
-                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='artist'">
+                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='Artist'">
                         Artist
                     </a>
                 </tr>
                 <tr>
-                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='description'">
+                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='Description'">
                         Description
                     </a>
                 </tr>
                 <tr>
-                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='released'">
+                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='ReleasedYear'">
                         Year Of Release
                     </a>
                 </tr>
                 <tr>
-                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='price'">
+                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='Price'">
                         Price
                     </a>
                 </tr>
@@ -36,7 +42,7 @@
             </thead>
             <tbody>
                 <tr ng-repeat="record in recordsCtrl.records | orderBy:recordsCtrl.fieldToOrderBy">
-                   <td><img src="{{record.PicturePath}}"/> </td>
+                   <td><img src="{{record.PicturePath}}" class="ImgRecords"/> </td>
                     <td>{{record.Name}}</td>
                     <td>{{record.Artist}}</td>
                     <td>{{record.Description}}</td>
@@ -49,3 +55,8 @@
     <br>
 
 </div>
+
+<span ng-show="mainCtrl.userService.isLoggedIn">
+    <h1>Recommended just for you</h1>
+
+</span>
