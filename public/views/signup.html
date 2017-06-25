@@ -1,0 +1,141 @@
+<h2 xmlns="http://www.w3.org/1999/html"> signup page</h2>
+<div class="signup-container" ng-controller="signupController as signupCtrl">
+    <form name="signupForm" novalidate>
+
+        <label><b>First name: </b></label>
+        <input type="text"
+               placeholder="Enter First name"
+               name="firstName"
+               ng-model="signupCtrl.user.firstName"
+               ng-required="true">
+        <p ng-show="signupForm.firstName.$invalid && !signupForm.firstName.$pristine"
+           class="help-block">First name required</p>
+        <br>
+
+
+        <label><b>Last name: </b></label>
+        <input type="text" placeholder="Enter Last name"
+               id="lastName"
+               ng-model="signupCtrl.user.lastName"
+               ng-required="true">
+        <p ng-show="signupForm.lastName.$invalid && !signupForm.lastName.$pristine"
+           class="help-block">Last name required</p>
+        <br>
+
+        <label><b>User name</b></label>
+        <input type="text" placeholder="Enter User name"
+               name="userName"
+               ng-model="signupCtrl.user.userName"
+               ng-required="true"
+               ng-minlength="3"
+               ng-maxlength="8"
+               ng-pattern ="/^[a-zA-Z\s]*$/">
+        <p ng-show="signupForm.userName.$error.minlength
+         && !signup-form.user-name.$pristine"
+           class="help-block">User name too short</p>
+
+        <p ng-show="signupForm.userName.$error.maxlength
+         && !signup-form.user-name.$pristine"
+           class="help-block">User name too long</p>
+
+        <p ng-show="signupForm.userName.$error.pattern
+         && !signup-form.user-name.$pristine"
+           class="help-block">User name must contain only letters</p>
+        <br>
+
+        <label><b>Email</b>
+            <input type="text"
+                   placeholder="Enter Email"
+                   name="email"
+                   ng-model="signupCtrl.user.email"
+                   ng-required="true">
+            <p ng-show="signupForm.email.$invalid && !signupForm.email.$pristine"
+               class="help-block">Email required</p>
+        </label>
+        <br>
+
+        <label><b>Password</b></label>
+        <input type="password"
+               placeholder="Enter Password"
+               name="password"
+               ng-model="signupCtrl.user.password"
+               ng-required="true"
+               ng-minlength="5"
+               ng-maxlength="10"
+        ng-pattern="/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)$/">
+        <p ng-show="signupForm.password.$error.minlength
+         && !signupForm.password.$pristine"
+           class="help-block">Password too short</p>
+
+        <p ng-show="signupForm.password.$error.maxlength
+         && !signupForm.password.$pristine"
+           class="help-block">Password too long</p>
+
+        <p ng-show="signupForm.password.$error.pattern
+         && !signupForm.password.$pristine"
+           class="help-block">Password must contain at least one number and one digit</p>
+        <br>
+        <label><b>Favoured Categories</b></label>
+        <br>
+        <label ng-repeat="category in signupCtrl.categories">
+            <input type="checkbox"
+                   value="{{signupCtrl.category}}"
+                   ng-checked="signupCtrl.selectedCategories.indexOf(category) > -1"
+                   ng-click="signupCtrl.toggleSelection(category)">
+            {{category}}
+        </label>
+        <br>
+
+        <label><b>Address</b></label>
+        <input type="text"
+               placeholder="Enter Address"
+               name="address"
+               ng-model="signupCtrl.user.address">
+        <br>
+
+        <label><b>City</b></label>
+        <input type="text" placeholder="Enter City"
+               name="city"
+               ng-model="signupCtrl.user.city">
+        <br>
+
+        <label><b>Country</b></label>
+        <select ng-model="signupCtrl.country"
+                ng-options="country for country in signupCtrl.countries">
+        </select>
+        <br>
+
+        <label><b>Phone</b></label>
+        <input type="text" placeholder="Enter Phone"
+               name="phone"
+               ng-model="signupCtrl.phone">
+        <br>
+
+        <label><b>Cellular</b></label>
+        <input type="text" placeholder="Enter Cellular"
+               name="cellular"
+               ng-model="signupCtrl.user.cellular">
+        <br>
+
+        <label><b>Credit Card</b></label>
+        <input type="text" placeholder="Enter Credit Card Number"
+               name="credit-card"
+               ng-model="signupCtrl.user.credit">
+        <br>
+
+        <label><b>Question</b></label>
+        <input type="text" placeholder="Enter Personal Question"
+               name="question"
+               ng-model="signupCtrl.user.question">
+        <br>
+
+        <label><b>Answer</b></label>
+        <input type="text" placeholder="Enter Personal Answer"
+               name="answer"
+               ng-model="signupCtrl.user.answer">
+        <br>
+
+        <input type="submit" ng-disabled="signupForm.$invalid">
+    </form>
+</div>
+</div>

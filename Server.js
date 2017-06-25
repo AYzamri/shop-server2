@@ -3,7 +3,7 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var DBUtils = require("./DButils.js");
 var Connection = require('tedious').Connection;
-var squel = require("squel");
+var squel = require('squel');
 
 var app = express(); // activating express
 app.use(bodyParser.urlencoded({extended: false}));
@@ -106,7 +106,7 @@ app.get('/getProductsByCategory', function (req, res) {
                 console.log("**sending all Records by category to client...**");
                 res.send(records);
             }
-            else res.send("no records found");
+            else res.status(500).send("no records found");
         })
         .catch(function (err) {
             console.log("**Error in products by category**");
@@ -126,7 +126,7 @@ app.get('/getProductsByName', function (req, res) {
                 console.log("**sending all searched products to the client..**");
                 res.send(records);
             }
-            else res.send("no records found");
+            else res.status(500).send("no records found");
         })
         .catch(function (err) {
             console.log("**Error in get products by name**");
@@ -182,9 +182,10 @@ app.post('/login', function (req, res) {
             res.send("login success");
         })
         .catch(function (err) {
-            console.log("**Error in login:**");
-            if (err === "failure") res.send("login failed");
-            else res.status(500).send('500 - server error :' + err.message);
+            console.log("**Error in login: " + err + "**");
+            if (err === "failure") res.status(500).send("login failed");
+            else
+            res.status(500).send('500 - server error :' + err);
         });
 
     function checkIfOneRecordIsBack(response) {
@@ -252,7 +253,7 @@ app.post('/register', function (req, res) {
             console.log("**Error in register:**");
             if (err.message.includes("Violation of PRIMARY KEY constraint")) {
                 console.log("** User name already exists **");
-                res.send("Username already exists");
+                res.status(500).send("Username already exists");
             }
             else {
                 res.status(500).send('500 - server error:', err.message);
@@ -310,7 +311,7 @@ app.post('/addProduct', function (req, res) {
             console.log("**Error in add product:**");
             if (err.message.includes("Violation of PRIMARY KEY constraint")) {
                 console.log("** Record already exists **");
-                res.send("Record already exists");
+                res.status(500).send("Record already exists");
             }
             else {
                 res.status(500).send('500 - server error: ' + err.message);
@@ -407,7 +408,7 @@ app.post("/changeProductInventory", function (req, res) {
     var productId = req.body.id;
     if (isNaN(newAmount) || isNaN(productId)) {
         console.log("product ID or amount not a number");
-        res.send("failure – given id is not a number");
+        res.status(500).send("failure – given id is not a number");
         return;
     }
     var query = squel.update()
@@ -447,7 +448,7 @@ app.post('/makeOrder', function (req, res) {
         })
         .catch(function (err) {
             console.log("** Failure in make order **");
-            if (err === "amounts are not available") res.send({"response": err})
+            if (err === "amounts are not available") res.status(500).send({"response": err})
             else res.status(500).send('500 - server error: ' + err.message);
         });
 
@@ -597,7 +598,7 @@ app.delete('/deleteProduct', function (req, res) {
         })
         .catch(function (err) {
             console.log("** Error in delete product ** ");
-            if (err.includes("no such key")) res.send("No such record");
+            if (err.includes("no such key")) res.status(500).send("No such record");
             else res.status(500).send("server error: " + err.message);
         });
 
@@ -650,7 +651,7 @@ app.delete('/deleteClient', function (req, res) {
         })
         .catch(function (err) {
             console.log("** Error in delete client ** ");
-            if (err.includes("no such key")) res.send("No such user name");
+            if (err.includes("no such key")) res.status(500).send("No such user name");
             else res.status(500).send("server error: " + err.message);
         });
 

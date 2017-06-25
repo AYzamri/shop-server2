@@ -32,6 +32,11 @@
             </span>
         </div>
         <div>
+            <span ng-hide="mainCtrl.userService.isLoggedIn">
+                <a ng-href="#/signup">Signup</a>
+            </span>
+        </div>
+        <div>
             <span>
                 <a ng-href="#/StorageExample">Local-Storage</a>
             </span>

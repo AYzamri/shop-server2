@@ -1,5 +1,3 @@
-
-
 let app = angular.module('myApp', ['ngRoute', 'LocalStorageModule']);
 //-------------------------------------------------------------------------------------------------------------------
 app.config(function (localStorageServiceProvider) {
@@ -19,7 +17,7 @@ app.controller('loginController', ['UserService', '$location', '$window',
 
         self.login = function(valid) {
             if (valid) {
-                UserService.login(self.user).then(function (success) {
+                    UserService.login(self.user).then(function (success) {
                     $window.alert('You are logged in');
                     $location.path('/');
                 }, function (error) {
@@ -29,6 +27,42 @@ app.controller('loginController', ['UserService', '$location', '$window',
             }
         };
 }]);
+//-------------------------------------------------------------------------------------------------------------------
+app.controller('signupController', ['UserService', '$location', '$window',
+    function(UserService, $location, $window) {
+        let self = this;
+
+        self.login = function(valid) {
+            if (valid) {
+                UserService.login(self.user).then(function (success) {
+                    $window.alert('You are logged in');
+                    $location.path('/');
+                }, function (error) {
+                    self.errorMessage = error.data;
+                    $window.alert('log-in has failed');
+                })
+            }
+        };
+
+        self.countries = [];
+        self.categories = ['Rock', 'Jazz', 'Pop', 'Blues', 'Metal', 'Techno', 'House', 'EDM', 'Funk', 'Reggae'];
+        self.selectedCategories = [];
+        
+        self.toggleSelection = function toggleSelection(fruitName) {
+            var idx = self.selection.indexOf(fruitName);
+
+            // Is currently selected
+            if (idx > -1) {
+                self.selection.splice(idx, 1);
+            }
+
+            // Is newly selected
+            else {
+                self.selection.push(fruitName);
+            }
+        };
+
+    }]);
 //-------------------------------------------------------------------------------------------------------------------
 app.controller('recordsController', ['$http', 'RecordModel', function($http, RecordModel) {
         let self = this;
@@ -78,6 +112,7 @@ app.factory('UserService', ['$http', function($http) {
 app.config(['$locationProvider', function($locationProvider) {
     $locationProvider.hashPrefix('');
 }]);
+
 app.config( ['$routeProvider', function($routeProvider) {
     $routeProvider
         .when("/", {
@@ -88,6 +123,10 @@ app.config( ['$routeProvider', function($routeProvider) {
             templateUrl : "views/login.html",
             controller : "loginController"
         })
+        .when("/signup", {
+            templateUrl : "views/signup.html",
+            controller : "signupController"
+            })
         .when("/records", {
             templateUrl : "views/records.html",
             controller: 'recordsController'
