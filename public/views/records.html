@@ -1,0 +1,51 @@
+
+<div ng-controller="recordsController as recordsCtrl">
+    <h2>Records</h2>
+    <br>
+    <button ng-click="recordsCtrl.getRecords()">Show Records</button>
+    <div ng-show="recordsCtrl.records">
+        <table>
+            <thead>
+            <tr></tr>
+                <tr>
+                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='name'">
+                        Name
+                    </a>
+                </tr>
+                <tr>
+                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='artist'">
+                        Artist
+                    </a>
+                </tr>
+                <tr>
+                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='description'">
+                        Description
+                    </a>
+                </tr>
+                <tr>
+                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='released'">
+                        Year Of Release
+                    </a>
+                </tr>
+                <tr>
+                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='price'">
+                        Price
+                    </a>
+                </tr>
+
+            </thead>
+            <tbody>
+                <tr ng-repeat="record in recordsCtrl.records | orderBy:recordsCtrl.fieldToOrderBy">
+                   <td><img src="{{record.PicturePath}}"/> </td>
+                    <td>{{record.Name}}</td>
+                    <td>{{record.Artist}}</td>
+                    <td>{{record.Description}}</td>
+                    <td>{{record.ReleasedYear}}</td>
+                    <td>{{record.Price}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <br>
+
+</div>

@@ -1,0 +1,39 @@
+
+<div ng-controller="StorageExampleController as storageExampleCtrl">
+    <h2>Local Storage Example</h2>
+    <div>
+        <h4>Add Storage (Key,Value) data</h4>
+        <div>
+            <label>
+                Key1
+                <input type="text" ng-model="storageExampleCtrl.key1">
+            </label>
+            <br>
+            <label>
+                Value1
+                <input type="text" ng-model="storageExampleCtrl.value1">
+            </label>
+            <br>
+            <button ng-click="storageExampleCtrl.addData()">Add Data 1</button>
+            <button ng-click="storageExampleCtrl.deleteData()" ng-disabled="!storageExampleCtrl.key1">Delete Data 1</button>
+
+        </div>
+        <br>
+    </div>
+
+    <div>
+        <h4>Add a Cookie</h4>
+        <label>
+            Cookie Key
+            <input type="text" ng-model="storageExampleCtrl.cookieKey">
+        </label>
+        <br>
+        <label>
+            Cookie Value
+            <input type="text" ng-model="storageExampleCtrl.cookieValue">
+        </label>
+        <br>
+        <button ng-click="storageExampleCtrl.addCookie()">Add Cookie</button>
+        <button ng-click="storageExampleCtrl.deleteCookie()" ng-disabled="!storageExampleCtrl.cookieKey">Delete Cookie</button>
+    </div>
+</div>

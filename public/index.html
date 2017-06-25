@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <title>Record Shop</title>
+    <script src="angularScripts/angular.js"></script>
+    <script src="app.js"></script>
+    <script type="text/javascript" src="angularScripts/angular-route.js"></script>
+    <script type="text/javascript" src="angularScripts/angular-local-storage.min.js"></script>
+    <script type="text/javascript" src="StorageExampleController.js"></script>
+
+    <script type="text/javascript" src="RecordModel.js"></script>
+
+
+</head>
+<body>
+    <header><h1>Welcome To Our Record Shop</h1></header>
+
+    <div ng-controller="mainController as mainCtrl">
+        <div>
+            <a ng-href="#/">Home</a>
+        </div>
+        <div>
+            <a ng-href="#/records">Records List</a>
+        </div>
+        <div ng-show="mainCtrl.userService.isLoggedIn">
+            <a ng-href="#/newestrecords">Newest Records This Month</a>
+        </div>
+        <div>
+            <span ng-hide="mainCtrl.userService.isLoggedIn">
+                <a ng-href="#/login">Login</a>
+            </span>
+        </div>
+        <div>
+            <span>
+                <a ng-href="#/StorageExample">Local-Storage</a>
+            </span>
+        </div>
+    </div>
+    <br>
+    <br>
+    <ng-view></ng-view>
+
+</body>
+</html>

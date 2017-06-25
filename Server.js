@@ -9,12 +9,28 @@ var app = express(); // activating express
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(cors());
-
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(express.static(__dirname + '/public'));
+//-------------------------------------------------------------------------------------------------------------------
+app.locals.users = {};
 var port = 5000;
 app.listen(port, function () {
     console.log('**listening to port: ' + port + '**');
 });
-
+//-------------------------------------------------------------------------------------------------------------------
+function checkLogin(req) {
+    var token = req.headers["my-token"];
+    var user = req.headers["user"];
+    if (!token || !user)
+        return false;
+    var validToken = app.locals.users[user];
+    if (validToken == token)
+        return true;
+    else
+        return false;
+}
+//-------------------------------------------------------------------------------------------------------------------
 var config = {
     userName: 'aaa',
     password: 'Admin1234!',
