@@ -1,7 +1,71 @@
+<div ng-controller="recordsController as recordsCtrl">
+    <h1>Top Selling Records</h1>
+    <table class="records">
+        <thead>
+        <th></th>
+        <th>
+                Name
+        </th>
+        <th>
+                Artist
+        </th>
+        <th>
+                Year Of Release
+        </th>
+        <th>
+                Price
+        </th>
 
-<div class="login-container" ng-controller="mainController as mainCtrl">
-    <h2>Home</h2>
-    <div>
-        {{mainCtrl.greeting}}
+        </thead>
+        <tbody>
+        <tr ng-repeat="record in recordsCtrl.topselingrecords | orderBy:Name">
+            <td class="records"><img src="{{record.PicturePath}}" class="ImgRecords"/> </td>
+            <td class="records">{{record.Name}}</td>
+            <td class="records">{{record.Artist}}</td>
+            <td class="records">{{record.ReleasedYear}}</td>
+            <td class="records">{{record.Price}}</td>
+        </tr>
+        </tbody>
+    </table>
+    <div ng-show="mainCtrl.userService.isLoggedIn">
+    <h1>Newest Records</h1>
+    <table class="records">
+        <thead>
+        <th></th>
+        <th>
+            Name
+        </th>
+        <th>
+            Artist
+        </th>
+        <th>
+            Year Of Release
+        </th>
+        <th>
+            Price
+        </th>
+
+        </thead>
+        <tbody>
+        <tr ng-repeat="record in recordsCtrl.newrecords | orderBy:Name">
+            <td class="records"><img src="{{record.PicturePath}}" class="ImgRecords"/> </td>
+            <td class="records">{{record.Name}}</td>
+            <td class="records">{{record.Artist}}</td>
+            <td class="records">{{record.ReleasedYear}}</td>
+            <td class="records">{{record.Price}}</td>
+        </tr>
+        </tbody>
+    </table>
+
+
     </div>
+
 </div>
+
+
+<span ng-show="mainCtrl.userService.isLoggedIn">
+    <h1>Recommended just for you</h1>
+</span>
+
+
+

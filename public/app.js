@@ -67,9 +67,7 @@ app.controller('signupController', ['UserService', '$location', '$window',
 app.controller('recordsController', ['$http', 'RecordModel', function($http, RecordModel) {
         let self = this;
         self.fieldToOrderBy = "Name";
-         //self.records = [];
-    self.model=[];
-        self.getRecords = function () {
+        self.category=1;
             $http.get('/listAllProducts')
                 .then(function (res) {
                     //We build now ProductModel for each record
@@ -78,11 +76,29 @@ app.controller('recordsController', ['$http', 'RecordModel', function($http, Rec
                         self.records.push(new RecordModel(record));
                     }
                    );
-                });
-        };
-        var categoryid=self.category=1;
+                        $http.get('/getBestSellingProducts')
+                            .then(function (res) {
+                                //We build now ProductModel for each record
+                                self.topselingrecords = [];
+                                angular.forEach(res.data, function (record) {
+                                        self.topselingrecords.push(new RecordModel(record));
+                                    }
+                                );
+                                $http.get('/getNewestProducts')
+                                    .then(function (res) {
+                                        //We build now ProductModel for each record
+                                        self.newrecords = [];
+                                        angular.forEach(res.data, function (record) {
+                                                self.newrecords.push(new RecordModel(record));
+
+                                            }
+                                        );
+
+                                    })
+                })
+            });
     self.getByCategory = function () {
-        $http.get('/getProductsByCategory',{params:categoryid})
+        $http.get('/getProductsByCategory?category='+self.category)
             .then(function (res) {
                 //We build now ProductModel for each record
                 self.records = [];
@@ -90,15 +106,12 @@ app.controller('recordsController', ['$http', 'RecordModel', function($http, Rec
                         self.records.push(new RecordModel(record));
                     }
                 );
+            })
+            .catch(function (e) {
+                self.records = [];
             });
+
     };
-        self.addRecord = function () {
-          let record = new RecordModel(self.myrecord);
-          if (record) {
-              record.add();
-              self.getRecords();
-          }
-        };
     }]);
 //-------------------------------------------------------------------------------------------------------------------
 app.factory('UserService', ['$http', function($http) {

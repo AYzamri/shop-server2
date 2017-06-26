@@ -21,12 +21,6 @@
             <a ng-href="#/">Home</a>
         </div>
         <div>
-            <a ng-href="#/records">Records List</a>
-        </div>
-        <div ng-show="mainCtrl.userService.isLoggedIn">
-            <a ng-href="#/newestrecords">Newest Records This Month</a>
-        </div>
-        <div>
             <span ng-hide="mainCtrl.userService.isLoggedIn">
                 <a ng-href="#/login">Login</a>
             </span>
@@ -35,6 +29,9 @@
             <span ng-hide="mainCtrl.userService.isLoggedIn">
                 <a ng-href="#/signup">Signup</a>
             </span>
+        </div>
+        <div>
+                <a ng-href="#/records">Records</a>
         </div>
         <div>
             <span>

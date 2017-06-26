@@ -102,11 +102,9 @@ app.get('/getProductsByCategory', function (req, res) {
     DBUtils.Select(connection, 'Select * FROM Records  JOIN [RecordsCategories] ON' +
         ' Records.RecordID=[RecordsCategories].RecordID WHERE RecordsCategories.CategoryID=' + category)
         .then(function (records) {
-            if (records.length > 0) {
                 console.log("**sending all Records by category to client...**");
                 res.send(records);
-            }
-            else res.status(500).send("no records found");
+
         })
         .catch(function (err) {
             console.log("**Error in products by category**");
@@ -137,7 +135,7 @@ app.get('/getProductsByName', function (req, res) {
 //****get top 5 selling products*****
 app.get('/getBestSellingProducts', function (req, res) {
     console.log("**get top selling products**");
-    var query = "select * from (select top 3 RecordID, sum(Amount) as sold from RecordsInOrders group by RecordID Order by sum(Amount) desc) AS t1 JOIN (select * from Records) AS t2 ON t1.RecordID=t2.RecordID"
+    var query = "select * from (select top 5 RecordID, sum(Amount) as sold from RecordsInOrders group by RecordID Order by sum(Amount) desc) AS t1 JOIN (select * from Records) AS t2 ON t1.RecordID=t2.RecordID"
     DBUtils.Select(connection, query)
         .then(function (records) {
             console.log("returned top 5 selling products to client")
