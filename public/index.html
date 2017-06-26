@@ -5,43 +5,45 @@
     <title>Record Shop</title>
     <script src="angularScripts/angular.js"></script>
     <script src="app.js"></script>
+    <script src="xml2json.js"></script>
     <script type="text/javascript" src="angularScripts/angular-route.js"></script>
     <script type="text/javascript" src="angularScripts/angular-local-storage.min.js"></script>
     <script type="text/javascript" src="StorageExampleController.js"></script>
 
     <script type="text/javascript" src="RecordModel.js"></script>
-    <link rel="stylesheet" href="views/style.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="views/style.css" type="text/css" media="screen"/>
 
 </head>
 <body>
+<div ng-controller="mainController as mainCtrl">
     <header><h1>Welcome To Our Record Shop</h1></header>
-
-    <div ng-controller="mainController as mainCtrl">
-        <div>
-            <a ng-href="#/">Home</a>
-        </div>
-        <div>
+    <div> {{ mainCtrl.helloMessage }}</div>
+    <br>
+    <div>
+        <a ng-href="#/">Home</a>
+    </div>
+    <div>
             <span ng-hide="mainCtrl.userService.isLoggedIn">
                 <a ng-href="#/login">Login</a>
             </span>
-        </div>
-        <div>
+    </div>
+    <div>
             <span ng-hide="mainCtrl.userService.isLoggedIn">
                 <a ng-href="#/signup">Signup</a>
             </span>
-        </div>
-        <div>
-                <a ng-href="#/records">Records</a>
-        </div>
-        <div>
+    </div>
+    <div>
+        <a ng-href="#/records">Records</a>
+    </div>
+    <div>
             <span>
                 <a ng-href="#/StorageExample">Local-Storage</a>
             </span>
-        </div>
     </div>
-    <br>
-    <br>
-    <ng-view></ng-view>
+</div>
+<br>
+<br>
+<ng-view></ng-view>
 
 </body>
 </html>

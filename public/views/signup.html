@@ -1,6 +1,9 @@
+<script src="../xml2json.js"></script>
 <h2 xmlns="http://www.w3.org/1999/html"> signup page</h2>
 <div class="signup-container" ng-controller="signupController as signupCtrl">
-    <form name="signupForm" novalidate>
+    <form name="signupForm"
+          ng-submit="signupCtrl.signup(signupForm.$valid)"
+          novalidate>
 
         <label><b>First name: </b></label>
         <input type="text"
@@ -24,34 +27,33 @@
 
         <label><b>User name</b></label>
         <input type="text" placeholder="Enter User name"
-               name="userName"
-               ng-model="signupCtrl.user.userName"
+               name="username"
+               ng-model="signupCtrl.user.username"
                ng-required="true"
                ng-minlength="3"
                ng-maxlength="8"
-               ng-pattern ="/^[a-zA-Z\s]*$/">
-        <p ng-show="signupForm.userName.$error.minlength
+               ng-pattern="/^[a-zA-Z\s]*$/">
+        <p ng-show="signupForm.username.$error.minlength
          && !signup-form.user-name.$pristine"
            class="help-block">User name too short</p>
 
-        <p ng-show="signupForm.userName.$error.maxlength
-         && !signup-form.user-name.$pristine"
+        <p ng-show="signupForm.username.$error.maxlength
+         && !signupForm.username.$pristine"
            class="help-block">User name too long</p>
 
-        <p ng-show="signupForm.userName.$error.pattern
-         && !signup-form.user-name.$pristine"
+        <p ng-show="signupForm.username.$error.pattern
+         && !signupForm.username.$pristine"
            class="help-block">User name must contain only letters</p>
         <br>
 
-        <label><b>Email</b>
-            <input type="text"
-                   placeholder="Enter Email"
-                   name="email"
-                   ng-model="signupCtrl.user.email"
-                   ng-required="true">
-            <p ng-show="signupForm.email.$invalid && !signupForm.email.$pristine"
-               class="help-block">Email required</p>
-        </label>
+        <label><b>Email</b></label>
+        <input type="text"
+               placeholder="Enter Email"
+               name="email"
+               ng-model="signupCtrl.user.email"
+               ng-required="true">
+        <p ng-show="signupForm.email.$invalid && !signupForm.email.$pristine"
+           class="help-block">Email required</p>
         <br>
 
         <label><b>Password</b></label>
@@ -62,7 +64,7 @@
                ng-required="true"
                ng-minlength="5"
                ng-maxlength="10"
-        ng-pattern="/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)$/">
+               ng-pattern="/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)$/">
         <p ng-show="signupForm.password.$error.minlength
          && !signupForm.password.$pristine"
            class="help-block">Password too short</p>
@@ -79,10 +81,10 @@
         <br>
         <label ng-repeat="category in signupCtrl.categories">
             <input type="checkbox"
-                   value="{{signupCtrl.category}}"
+                   value="{{signupCtrl.category.value}}"
                    ng-checked="signupCtrl.selectedCategories.indexOf(category) > -1"
                    ng-click="signupCtrl.toggleSelection(category)">
-            {{category}}
+            {{category.name}}
         </label>
         <br>
 
@@ -99,10 +101,11 @@
                ng-model="signupCtrl.user.city">
         <br>
 
-        <label><b>Country</b></label>
-        <select ng-model="signupCtrl.country"
-                ng-options="country for country in signupCtrl.countries">
-        </select>
+        <label><b>Country</b>
+            <select ng-model="signupCtrl.country"
+                    ng-options="country for country in signupCtrl.countries">
+            </select>
+        </label>
         <br>
 
         <label><b>Phone</b></label>
@@ -119,23 +122,30 @@
 
         <label><b>Credit Card</b></label>
         <input type="text" placeholder="Enter Credit Card Number"
-               name="credit-card"
-               ng-model="signupCtrl.user.credit">
+               name="creditCard"
+               ng-model="signupCtrl.user.creditCard">
         <br>
 
-        <label><b>Question</b></label>
-        <input type="text" placeholder="Enter Personal Question"
-               name="question"
-               ng-model="signupCtrl.user.question">
+        <label><b>Question</b>
+            <select ng-model="signupCtrl.user.question"
+                    ng-options="question for question in signupCtrl.questions">
+            </select>
+        </label>
         <br>
 
         <label><b>Answer</b></label>
         <input type="text" placeholder="Enter Personal Answer"
                name="answer"
-               ng-model="signupCtrl.user.answer">
+               ng-model="signupCtrl.user.answer"
+               ng-required="true">
+        <p ng-show="signupForm.answer.$invalid && !signupForm.answer.$pristine"
+           class="help-block">Answer required</p>
         <br>
 
         <input type="submit" ng-disabled="signupForm.$invalid">
     </form>
+    <div>
+        {{signupCtrl.errorMessage}}
+    </div>
 </div>
 </div>

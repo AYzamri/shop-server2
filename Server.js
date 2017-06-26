@@ -236,7 +236,7 @@ app.post('/register', function (req, res) {
         .set("Country", req.body.country)
         .set("Phone", req.body.phone)
         .set("Cellular", req.body.cellular)
-        .set("Mail", req.body.mail)
+        .set("Mail", req.body.email)
         .set("CreditCard", req.body.creditCard)
         .set("Question", req.body.question)
         .set("Answer", req.body.answer)
