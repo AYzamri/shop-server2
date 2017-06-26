@@ -114,6 +114,45 @@ app.controller('recordsController', ['$http', 'RecordModel', function($http, Rec
     };
     }]);
 //-------------------------------------------------------------------------------------------------------------------
+app.controller('recordsmainController', ['$http', 'RecordModel', function($http, RecordModel) {
+    let self = this;
+    self.fieldToOrderBy = "Name";
+    self.category=1;
+    $http.get('/listAllProducts')
+        .then(function (res) {
+            //We build now ProductModel for each record
+            self.records = [];
+            angular.forEach(res.data, function (record) {
+                    self.records.push(new RecordModel(record));
+                }
+            );
+            $http.post('/getRecommendedProducts',user)
+                .then(function (res) {
+                    //We build now ProductModel for each record
+                    self.recommendedrecords = [];
+                    angular.forEach(res.data, function (record) {
+                            self.recommendedrecords.push(new RecordModel(record));
+                        }
+                    );
+                })
+        });
+    self.getByCategory = function () {
+        $http.get('/getProductsByCategory?category='+self.category)
+            .then(function (res) {
+                //We build now ProductModel for each record
+                self.records = [];
+                angular.forEach(res.data, function (record) {
+                        self.records.push(new RecordModel(record));
+                    }
+                );
+            })
+            .catch(function (e) {
+                self.records = [];
+            });
+
+    };
+}]);
+//-------------------------------------------------------------------------------------------------------------------
 app.factory('UserService', ['$http', function($http) {
     let service = {};
     service.isLoggedIn = false;

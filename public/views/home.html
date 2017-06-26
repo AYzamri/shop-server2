@@ -27,7 +27,7 @@
         </tr>
         </tbody>
     </table>
-    <div ng-show="mainCtrl.userService.isLoggedIn">
+    <div ng-show="!mainCtrl.userService.isLoggedIn">
     <h1>Newest Records</h1>
     <table class="records">
         <thead>
@@ -39,7 +39,7 @@
             Artist
         </th>
         <th>
-            Year Of Release
+            Arrive Date InStore
         </th>
         <th>
             Price
@@ -47,11 +47,11 @@
 
         </thead>
         <tbody>
-        <tr ng-repeat="record in recordsCtrl.newrecords | orderBy:Name">
+        <tr ng-repeat="record in recordsCtrl.newrecords | orderBy: ArriveDateInStore">
             <td class="records"><img src="{{record.PicturePath}}" class="ImgRecords"/> </td>
             <td class="records">{{record.Name}}</td>
             <td class="records">{{record.Artist}}</td>
-            <td class="records">{{record.ReleasedYear}}</td>
+            <td class="records">{{record.ArriveDateInStore | date:'MM/dd/yyyy'}}</td>
             <td class="records">{{record.Price}}</td>
         </tr>
         </tbody>
