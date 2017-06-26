@@ -68,14 +68,6 @@ app.controller('recordsController', ['$http', 'RecordModel', function($http, Rec
         let self = this;
         self.fieldToOrderBy = "Name";
         self.category=1;
-            $http.get('/listAllProducts')
-                .then(function (res) {
-                    //We build now ProductModel for each record
-                    self.records = [];
-                    angular.forEach(res.data, function (record) {
-                        self.records.push(new RecordModel(record));
-                    }
-                   );
                         $http.get('/getBestSellingProducts')
                             .then(function (res) {
                                 //We build now ProductModel for each record
@@ -96,7 +88,7 @@ app.controller('recordsController', ['$http', 'RecordModel', function($http, Rec
 
                                     })
                 })
-            });
+            ;
     self.getByCategory = function () {
         $http.get('/getProductsByCategory?category='+self.category)
             .then(function (res) {
@@ -126,9 +118,13 @@ app.controller('recordsmainController', ['$http', 'RecordModel', function($http,
                     self.records.push(new RecordModel(record));
                 }
             );
-            $http.post('/getRecommendedProducts',user)
+            var data = ({
+                username: "amit"
+            });
+            $http.post('/getRecommendedProducts',data)
                 .then(function (res) {
                     //We build now ProductModel for each record
+                    console.log(res);
                     self.recommendedrecords = [];
                     angular.forEach(res.data, function (record) {
                             self.recommendedrecords.push(new RecordModel(record));
@@ -194,7 +190,7 @@ app.config( ['$routeProvider', function($routeProvider) {
             })
         .when("/records", {
             templateUrl : "views/records.html",
-            controller: 'recordsController'
+            controller: 'recordsmainController'
         })
         .when("/StorageExample", {
             templateUrl : "views/StorageExample.html",
