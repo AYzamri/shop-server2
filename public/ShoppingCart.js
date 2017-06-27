@@ -10,7 +10,7 @@ app.controller('cartController', ['CartService', '$location', '$window',
         };
 
         self.modalShown = false;
-        self.toggleModal = function() {
+        self.toggleModal = function () {
             self.modalShown = !self.modalShown;
         };
 
@@ -30,16 +30,23 @@ app.factory('CartService', ['$http', function ($http) {
     service.addRecordToCart = function (record) {
         console.log("CartService::addRecordToCart");
 
-        service.cart.push({
-            RecordID: record.RecordID,
-            Name: record.Name,
-            Artist: record.Artist,
-            Price: record.Price,
-            ReleasedYear: record.ReleasedYear,
-            Description: record.Description,
-            PicturePath: record.PicturePath,
-            ArriveDateInStore: record.ArriveDateInStore
-        });
+        let addRecordIndexInCart = service.recordIndexInCart(record);
+        if (addRecordIndexInCart > -1) {
+            service.cart[addRecordIndexInCart].Quantity++;
+        }
+        else {
+            service.cart.push({
+                RecordID: record.RecordID,
+                Name: record.Name,
+                Artist: record.Artist,
+                Price: record.Price,
+                ReleasedYear: record.ReleasedYear,
+                Description: record.Description,
+                PicturePath: record.PicturePath,
+                ArriveDateInStore: record.ArriveDateInStore,
+                Quantity: 1
+            });
+        }
         alert("'" + record.Name + "' " + "has been added to your cart")
         service.priceSum += record.Price;
     };
@@ -49,8 +56,16 @@ app.factory('CartService', ['$http', function ($http) {
 
         let recordIndexInCart = service.recordIndexInCart(record);
         if (recordIndexInCart > -1) {
-            service.cart.splice(recordIndexInCart, 1);
-            service.priceSum -= record.Price;
+            // record is in cart
+            if (service.cart[recordIndexInCart].Quantity == 1) {
+                // record has once instance in the cart
+                service.cart.splice(recordIndexInCart, 1);
+                service.priceSum -= record.Price;
+            }
+            else {
+                //record has more than one instance in the cart
+                service.cart[recordIndexInCart].Quantity--;
+            }
             alert("'" + record.Name + "' " + "has been removed from your cart")
         }
         else {
@@ -72,7 +87,7 @@ app.factory('CartService', ['$http', function ($http) {
     return service;
 }]);
 //-------------------------------------------------------------------------------------------------------------------
-app.directive('modalDialog', function() {
+app.directive('modalDialog', function () {
     return {
         restrict: 'E',
         scope: {
@@ -80,13 +95,13 @@ app.directive('modalDialog', function() {
         },
         replace: true, // Replace with the template below
         transclude: true, // we want to insert custom content inside the directive
-        link: function(scope, element, attrs) {
+        link: function (scope, element, attrs) {
             scope.dialogStyle = {};
             if (attrs.width)
                 scope.dialogStyle.width = attrs.width;
             if (attrs.height)
                 scope.dialogStyle.height = attrs.height;
-            scope.hideModal = function() {
+            scope.hideModal = function () {
                 scope.show = false;
             };
         },

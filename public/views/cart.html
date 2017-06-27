@@ -1,5 +1,5 @@
 <div ng-controller="cartController as cartCtrl">
-    <table class="records">
+    <table class="records" ng-show="cartCtrl.cartService.cart.length > 0">
         <thead>
         <th>
             Name
@@ -10,12 +10,16 @@
         <th>
             Price
         </th>
+        <th>
+            Quantity
+        </th>
         </thead>
         <tbody>
         <tr ng-repeat="record in cartCtrl.cartService.cart">
             <td class="">{{record.Name}}</td>
             <td class="">{{record.Artist}}</td>
             <td class="">{{record.Price}}</td>
+            <td class="">{{record.Quantity}}</td>
             <td class="cart">
                 <img src="../resources/view_details.png" height="25" width="25"
                      ng-click="cartCtrl.seeRecordDetails(record)">
