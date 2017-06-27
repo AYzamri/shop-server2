@@ -151,11 +151,12 @@ app.controller('recordsController', ['$http', 'RecordModel', 'CartService',
         }
     }]);
 //-------------------------------------------------------------------------------------------------------------------
-app.controller('recordsMainController', ['$http', 'RecordModel', 'CartService',
-    function ($http, RecordModel, CartService) {
+app.controller('recordsMainController', ['$http', 'RecordModel', 'CartService','UserService',
+    function ($http, RecordModel, CartService,UserService) {
         let self = this;
         self.fieldToOrderBy = "Name";
         self.category = 1;
+        self.userService = UserService;
         $http.get('/listAllProducts')
             .then(function (res) {
                 //We build now ProductModel for each record
@@ -165,7 +166,7 @@ app.controller('recordsMainController', ['$http', 'RecordModel', 'CartService',
                     }
                 );
                 var data = ({
-                    username: "amit"
+                    username: self.userService.username,
                 });
                 $http.post('/getRecommendedProducts', data)
                     .then(function (res) {
