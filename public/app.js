@@ -259,7 +259,6 @@ app.factory('DataSource', ['$http', function ($http) {
                 }, function errorCallBack(data, status) {
                     console.log("Request failed " + status);
                 });
-
         }
     };
 }]);
