@@ -4,8 +4,8 @@ app.config(function (localStorageServiceProvider) {
     localStorageServiceProvider.setPrefix('node_angular_App');
 });
 //-------------------------------------------------------------------------------------------------------------------
-app.controller('mainController', ['UserService', '$location',
-    function (UserService, $location) {
+app.controller('mainController', ['UserService', '$location', '$route',
+    function (UserService, $location, $route) {
         let self = this;
         self.greeting = 'Have a nice day';
         self.userService = UserService;
@@ -14,6 +14,7 @@ app.controller('mainController', ['UserService', '$location',
         self.logout = function () {
             self.isLoggedIn = false;
             UserService.isLoggedIn = false;
+            $route.reload();
         };
     }]);
 //-------------------------------------------------------------------------------------------------------------------
@@ -41,19 +42,24 @@ app.controller('signupController', ['UserService', 'DataSource', '$location', '$
 
         self.user = {
             username: '', password: '', firstName: '', lastName: '', email: '', categories: [],
-            address: '', city: '', country: '', phone: '', cellular: '', creditCard: '', answer: '',
+            address: '', city: '', country: 'Israel', phone: '', cellular: '', creditCard: '', answer: '',
             question: 'What is your favorite coding language?'
         };
 
         self.signup = function (valid) {
             if (valid) {
-                UserService.signup(self.user).then(function (success) {
-                    $window.alert('Thank you for joining us');
-                    $location.path('/login');
-                }, function (error) {
-                    self.errorMessage = error.data;
-                    $window.alert('registration has failed');
-                })
+                if (self.user.categories.length > 0) {
+                    UserService.signup(self.user).then(function (success) {
+                        $window.alert('Thank you for joining us');
+                        $location.path('/login');
+                    }, function (error) {
+                        self.errorMessage = error.data;
+                        $window.alert('registration has failed');
+                    })
+                }
+                else {
+                    self.categoryError = "Please choose at least one category";
+                }
             }
         };
 

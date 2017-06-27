@@ -82,12 +82,13 @@
         <label ng-repeat="category in signupCtrl.categories">
             <input type="checkbox"
                    value="{{signupCtrl.category.value}}"
-                   ng-checked="signupCtrl.selectedCategories.indexOf(category) > -1"
                    ng-click="signupCtrl.toggleSelection(category)">
+            <!--ng-checked="signupCtrl.selectedCategories.indexOf(category) > -1"-->
             {{category.name}}
         </label>
         <br>
-
+        {{signupCtrl.categoryError}}
+        <br>
         <label><b>Address</b></label>
         <input type="text"
                placeholder="Enter Address"

@@ -20,8 +20,7 @@ app.factory('CartService', ['$http', function ($http) {
     let service = {};
 
     // this is the shopping cart which will be presented in cart.html
-    // array of products, each product is represented:
-    // {id, name, artist, price, quantity}
+    // array of products
     service.cart = [];
 
     // when product goes inside the cart - increase priceSum with it's price
