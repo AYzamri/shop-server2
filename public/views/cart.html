@@ -1,5 +1,5 @@
 <div ng-controller="cartController as cartCtrl">
-    <table class="cart">
+    <table class="records">
         <thead>
         <th>
             Name
@@ -13,12 +13,33 @@
         </thead>
         <tbody>
         <tr ng-repeat="record in cartCtrl.cartService.cart">
-            <td class="records">{{record.name}}</td>
-            <td class="records">{{record.artist}}</td>
-            <td class="records">{{record.price}}</td>
+            <td class="">{{record.Name}}</td>
+            <td class="">{{record.Artist}}</td>
+            <td class="">{{record.Price}}</td>
+            <td class="cart">
+                <img src="../resources/view_details.png" height="25" width="25"
+                     ng-click="cartCtrl.seeRecordDetails(record)">
+            </td>
+            <td>
+                <img src="../resources/remove-from-cart.png" width="40" height="40" class="cart"
+                     ng-click="cartCtrl.cartService.removeRecordFromCart(record)">
+            </td>
         </tr>
         <br>
         <tr> Overall price: {{ cartCtrl.cartService.priceSum }}</tr>
         </tbody>
     </table>
+
+    <modal-dialog show='cartCtrl.modalShown' width='750px' height='60%'>
+        <p>
+        <h3>Product Details:</h3>
+        <b>Name:</b> {{cartCtrl.recordToSee.Name }} <br>
+        <b>Artist:</b> {{cartCtrl.recordToSee.Artist }} <br>
+        <b>Price:</b> {{cartCtrl.recordToSee.Price }} <br>
+        <b>Released at:</b> {{cartCtrl.recordToSee.ReleasedYear }} <br>
+        <b>Description:</b> {{cartCtrl.recordToSee.Description }} <br>
+        <img class="recordImg" src="{{cartCtrl.recordToSee.PicturePath}}">
+        <p>
+
+    </modal-dialog>
 </div>
