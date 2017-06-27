@@ -1,7 +1,3 @@
-/**
- * Created by Hasidi on 20/06/2017.
- */
-
 app.factory('RecordModel', ['$http', function($http) {
     function RecordModel(record) {
         if (record)
@@ -19,7 +15,7 @@ app.factory('RecordModel', ['$http', function($http) {
         add: function () {
             $http.post('/listAllProducts', this).then(function(res) {
             });
-        },
+        }
     };
     return RecordModel;
 }]);

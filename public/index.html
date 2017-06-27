@@ -5,11 +5,11 @@
     <title>Record Shop</title>
     <script src="angularScripts/angular.js"></script>
     <script src="app.js"></script>
-    <script src="xml2json.js"></script>
+    <script src="ShoppingCart.js"></script>
+    <script src="resources/xml2json.js"></script>
     <script type="text/javascript" src="angularScripts/angular-route.js"></script>
     <script type="text/javascript" src="angularScripts/angular-local-storage.min.js"></script>
     <script type="text/javascript" src="StorageExampleController.js"></script>
-
     <script type="text/javascript" src="RecordModel.js"></script>
     <link rel="stylesheet" href="views/style.css" type="text/css" media="screen"/>
 
@@ -17,8 +17,13 @@
 <body>
 <div ng-controller="mainController as mainCtrl">
     <header><h1>Welcome To Our Record Shop</h1></header>
-    <div> {{ mainCtrl.helloMessage }}</div>
+    <div> {{ mainCtrl.userService.helloMessage() }}</div>
     <br>
+    <div ng-show="mainCtrl.userService.isLoggedIn">
+        <a ng-href="#/cart">
+            <img src="resources/cart-icon.png" height="70" width="70" class="cart">
+        </a>
+    </div>
     <div>
         <a ng-href="#/">Home</a>
     </div>
@@ -30,6 +35,11 @@
     <div>
             <span ng-hide="mainCtrl.userService.isLoggedIn">
                 <a ng-href="#/signup">Signup</a>
+            </span>
+    </div>
+    <div>
+            <span ng-show="mainCtrl.userService.isLoggedIn">
+                <a ng-href="#/" ng-click="mainCtrl.logout()">Logout</a>
             </span>
     </div>
     <div>

@@ -1,0 +1,24 @@
+<div ng-controller="cartController as cartCtrl">
+    <table class="cart">
+        <thead>
+        <th>
+            Name
+        </th>
+        <th>
+            Artist
+        </th>
+        <th>
+            Price
+        </th>
+        </thead>
+        <tbody>
+        <tr ng-repeat="record in cartCtrl.cartService.cart">
+            <td class="records">{{record.name}}</td>
+            <td class="records">{{record.artist}}</td>
+            <td class="records">{{record.price}}</td>
+        </tr>
+        <br>
+        <tr> Overall price: {{ cartCtrl.cartService.priceSum }}</tr>
+        </tbody>
+    </table>
+</div>

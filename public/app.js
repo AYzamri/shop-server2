@@ -4,20 +4,17 @@ app.config(function (localStorageServiceProvider) {
     localStorageServiceProvider.setPrefix('node_angular_App');
 });
 //-------------------------------------------------------------------------------------------------------------------
-app.controller('mainController', ['UserService',
-    function (UserService) {
+app.controller('mainController', ['UserService', '$location',
+    function (UserService, $location) {
         let self = this;
         self.greeting = 'Have a nice day';
         self.userService = UserService;
         self.isLoggedIn = UserService.isLoggedIn;
-        // self.helloMessage = "Hello ";
-        self.isLoggedIn = UserService.isLoggedIn;
-        if (UserService.isLoggedIn) {
-            self.helloMessage = UserService.username;
-        }
-        else {
-            // self.helloMessage += "guest";
-        }
+
+        self.logout = function () {
+            self.isLoggedIn = false;
+            UserService.isLoggedIn = false;
+        };
     }]);
 //-------------------------------------------------------------------------------------------------------------------
 app.controller('loginController', ['UserService', '$location', '$window',
@@ -41,6 +38,7 @@ app.controller('loginController', ['UserService', '$location', '$window',
 app.controller('signupController', ['UserService', 'DataSource', '$location', '$window',
     function (UserService, DataSource, $location, $window) {
         let self = this;
+
         self.user = {
             username: '', password: '', firstName: '', lastName: '', email: '', categories: [],
             address: '', city: '', country: '', phone: '', cellular: '', creditCard: '', answer: '',
@@ -82,96 +80,83 @@ app.controller('signupController', ['UserService', 'DataSource', '$location', '$
         self.categories = [{name: 'Rock', value: 1}, {name: 'Pop', value: 2}, {name: 'R&B', value: 5},
             {name: 'Jazz', value: 6}, {name: 'Blues', value: 7}, {name: 'Metal', value: 8}, {name: 'Techno', value: 9},
             {name: 'House', value: 10}, {name: 'EDM', value: 11}, {name: "Funk", value: 12}, {
-                name: 'Reggae',
-                value: 13
+                name: 'Reggae', value: 13
             }];
 
         // Get countries from countries.xml
-        var SOURCE_FILE = "countries.xml";
-        xmlTransform = function (data) {
+        var SOURCE_FILE = "resources/countries.xml";
+        var xmlTransform = function (data) {
             console.log("transform data");
             var x2js = new X2JS();
             var json = x2js.xml_str2json(data);
             return json.Countries;
         };
-
-        setData = function (data) {
+        var setData = function (data) {
             console.log("setdata", data);
             self.countries = data;
+            self.dataSet = data;
         };
         DataSource.get(SOURCE_FILE, setData, xmlTransform);
     }]);
 //-------------------------------------------------------------------------------------------------------------------
-app.controller('recordsController', ['$http', 'RecordModel', function ($http, RecordModel) {
-    let self = this;
-    self.fieldToOrderBy = "Name";
-    self.category = 1;
-    $http.get('/getBestSellingProducts')
-        .then(function (res) {
-            //We build now ProductModel for each record
-            self.topselingrecords = [];
-            angular.forEach(res.data, function (record) {
-                    self.topselingrecords.push(new RecordModel(record));
-                }
-            );
-            $http.get('/getNewestProducts')
-                .then(function (res) {
-                    //We build now ProductModel for each record
-                    self.newrecords = [];
-                    angular.forEach(res.data, function (record) {
-                            self.newrecords.push(new RecordModel(record));
-
-                        }
-                    );
-
-                })
-        })
-    ;
-    self.getByCategory = function () {
-        $http.get('/getProductsByCategory?category=' + self.category)
+app.controller('recordsController', ['$http', 'RecordModel', 'CartService',
+    function ($http, RecordModel, CartService) {
+        let self = this;
+        self.fieldToOrderBy = "Name";
+        self.category = 1;
+        $http.get('/getBestSellingProducts')
             .then(function (res) {
                 //We build now ProductModel for each record
-                self.records = [];
+                self.topselingrecords = [];
                 angular.forEach(res.data, function (record) {
-                        self.records.push(new RecordModel(record));
+                        self.topselingrecords.push(new RecordModel(record));
                     }
                 );
-            })
-            .catch(function (e) {
-                self.records = [];
+                $http.get('/getNewestProducts')
+                    .then(function (res) {
+                        //We build now ProductModel for each record
+                        self.newrecords = [];
+                        angular.forEach(res.data, function (record) {
+                                self.newrecords.push(new RecordModel(record));
+                            }
+                        );
+
+                    })
             });
 
-    };
-}]);
+        self.getByCategory = function () {
+            $http.get('/getProductsByCategory?category=' + self.category)
+                .then(function (res) {
+                    //We build now ProductModel for each record
+                    self.records = [];
+                    angular.forEach(res.data, function (record) {
+                            self.records.push(new RecordModel(record));
+                        }
+                    );
+                })
+                .catch(function (e) {
+                    self.records = [];
+                });
+
+        };
+
+        self.addRecordToCart = function (record) {
+            console.log("recordsController::addProduct");
+            CartService.addRecordToCart(record);
+        };
+
+        self.removeRecordFromCart = function (record) {
+            console.log("recordsController::removeRecordFromCart");
+            CartService.removeRecordFromCart(record);
+        }
+    }]);
 //-------------------------------------------------------------------------------------------------------------------
-app.controller('recordsmainController', ['$http', 'RecordModel', function ($http, RecordModel) {
-    let self = this;
-    self.fieldToOrderBy = "Name";
-    self.category = 1;
-    $http.get('/listAllProducts')
-        .then(function (res) {
-            //We build now ProductModel for each record
-            self.records = [];
-            angular.forEach(res.data, function (record) {
-                    self.records.push(new RecordModel(record));
-                }
-            );
-            var data = ({
-                username: "amit"
-            });
-            $http.post('/getRecommendedProducts', data)
-                .then(function (res) {
-                    //We build now ProductModel for each record
-                    console.log(res);
-                    self.recommendedrecords = [];
-                    angular.forEach(res.data, function (record) {
-                            self.recommendedrecords.push(new RecordModel(record));
-                        }
-                    );
-                })
-        });
-    self.getByCategory = function () {
-        $http.get('/getProductsByCategory?category=' + self.category)
+app.controller('recordsMainController', ['$http', 'RecordModel', 'CartService',
+    function ($http, RecordModel, CartService) {
+        let self = this;
+        self.fieldToOrderBy = "Name";
+        self.category = 1;
+        $http.get('/listAllProducts')
             .then(function (res) {
                 //We build now ProductModel for each record
                 self.records = [];
@@ -179,13 +164,46 @@ app.controller('recordsmainController', ['$http', 'RecordModel', function ($http
                         self.records.push(new RecordModel(record));
                     }
                 );
-            })
-            .catch(function (e) {
-                self.records = [];
+                var data = ({
+                    username: "amit"
+                });
+                $http.post('/getRecommendedProducts', data)
+                    .then(function (res) {
+                        //We build now ProductModel for each record
+                        console.log(res);
+                        self.recommendedrecords = [];
+                        angular.forEach(res.data, function (record) {
+                                self.recommendedrecords.push(new RecordModel(record));
+                            }
+                        );
+                    })
             });
 
-    };
-}]);
+        self.getByCategory = function () {
+            $http.get('/getProductsByCategory?category=' + self.category)
+                .then(function (res) {
+                    //We build now ProductModel for each record
+                    self.records = [];
+                    angular.forEach(res.data, function (record) {
+                            self.records.push(new RecordModel(record));
+                        }
+                    );
+                })
+                .catch(function (e) {
+                    self.records = [];
+                });
+        };
+
+        self.addRecordToCart = function (record) {
+            console.log("recordsController::addProduct");
+            CartService.addRecordToCart(record);
+        };
+
+        self.removeRecordFromCart = function (record) {
+            console.log("recordsController::removeRecordFromCart");
+            CartService.removeRecordFromCart(record);
+        }
+    }]);
 //-------------------------------------------------------------------------------------------------------------------
 app.factory('UserService', ['$http', function ($http) {
     let service = {};
@@ -208,6 +226,16 @@ app.factory('UserService', ['$http', function ($http) {
             });
     };
 
+    service.helloMessage = function () {
+        let message = "Hello ";
+        if (service.isLoggedIn) {
+            message += service.username;
+        } else {
+            message += "guest";
+        }
+        return message;
+    };
+
     service.signup = function (user) {
         return $http.post('/register', user)
             .then(function (response) {
@@ -227,7 +255,7 @@ app.factory('DataSource', ['$http', function ($http) {
             $http.get(file, {transformResponse: transform})
                 .then(function (data, status) {
                     console.log("Request succeeded", data);
-                    callback(data);
+                    callback(data.data.Country);
                 }, function errorCallBack(data, status) {
                     console.log("Request failed " + status);
                 });
@@ -256,14 +284,18 @@ app.config(['$routeProvider', function ($routeProvider) {
         })
         .when("/records", {
             templateUrl: "views/records.html",
-            controller: 'recordsmainController'
+            controller: 'recordsMainController'
+        })
+        .when("/cart", {
+            templateUrl: "views/cart.html",
+            controller: 'cartController'
         })
         .when("/StorageExample", {
             templateUrl: "views/StorageExample.html",
             controller: 'StorageExampleController'
         })
         .otherwise({
-            redirect: '/',
+            redirect: '/'
         });
 }]);
 //-------------------------------------------------------------------------------------------------------------------

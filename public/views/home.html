@@ -1,35 +1,44 @@
 <div ng-controller="recordsController as recordsCtrl">
-    <h1>Top Selling Records</h1>
-    <table class="records">
-        <thead>
-        <th></th>
-        <th>
-            Name
-        </th>
-        <th>
-            Artist
-        </th>
-        <th>
-            Year Of Release
-        </th>
-        <th>
-            Price
-        </th>
-
-        </thead>
-        <tbody>
-        <tr ng-repeat="record in recordsCtrl.topselingrecords | orderBy:Name">
-            <td class="records"><img src="{{record.PicturePath}}" class="ImgRecords"/></td>
-            <td class="records">{{record.Name}}</td>
-            <td class="records">{{record.Artist}}</td>
-            <td class="records">{{record.ReleasedYear}}</td>
-            <td class="records">{{record.Price}}</td>
-        </tr>
-        </tbody>
-    </table>
     <div ng-controller="mainController as mainCtrl">
+        <h1>Homepage</h1>
+        <h2>Top Selling Records</h2>
+        <table class="records">
+            <thead>
+            <th></th>
+            <th>
+                Name
+            </th>
+            <th>
+                Artist
+            </th>
+            <th>
+                Year Of Release
+            </th>
+            <th>
+                Price
+            </th>
+
+            </thead>
+            <tbody>
+            <tr ng-repeat="record in recordsCtrl.topselingrecords | orderBy:Name">
+                <td class="records"><img src="{{record.PicturePath}}" class="ImgRecords"/></td>
+                <td class="records">{{record.Name}}</td>
+                <td class="records">{{record.Artist}}</td>
+                <td class="records">{{record.ReleasedYear}}</td>
+                <td class="records">{{record.Price}}</td>
+                <td class="records"><img src="../resources/add-to-cart.png" width="40" height="40" class="cart"
+                                         ng-click="recordsCtrl.addRecordToCart(record)"
+                                         ng-show="mainCtrl.isLoggedIn">
+                </td>
+                <td class="records"><img src="../resources/remove-from-cart.png" width="40" height="40" class="cart"
+                                         ng-click="recordsCtrl.removeRecordFromCart(record)"
+                                         ng-show="mainCtrl.isLoggedIn">
+                </td>
+            </tr>
+            </tbody>
+        </table>
         <div ng-show="mainCtrl.isLoggedIn">
-            <h1>Newest Records</h1>
+            <h2>Newest Records</h2>
             <table class="records">
                 <thead>
                 <th></th>
@@ -54,19 +63,18 @@
                     <td class="records">{{record.Artist}}</td>
                     <td class="records">{{record.ArriveDateInStore | date:'MM/dd/yyyy'}}</td>
                     <td class="records">{{record.Price}}</td>
+                    <td class="records"><img src="../resources/add-to-cart.png" width="40" height="40" class="cart"
+                                             ng-click="recordsCtrl.addRecordToCart(record)">
+                    </td>
+                    <td class="records"><img src="../resources/remove-from-cart.png" width="40" height="40"
+                                             class="cart"
+                                             ng-click="recordsCtrl.removeRecordFromCart(record)">
+                    </td>
                 </tr>
                 </tbody>
             </table>
-
-
         </div>
-
     </div>
-
-
-<span ng-show="mainCtrl.userService.isLoggedIn">
-    <h1>Recommended just for you</h1>
-</span>
 </div>
 
 
