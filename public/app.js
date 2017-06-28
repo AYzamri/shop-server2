@@ -105,30 +105,49 @@ app.controller('signupController', ['UserService', 'DataSource', '$location', '$
         DataSource.get(SOURCE_FILE, setData, xmlTransform);
     }]);
 //-------------------------------------------------------------------------------------------------------------------
-app.controller('recordsController', ['$http', 'RecordModel', 'CartService',
-    function ($http, RecordModel, CartService) {
+app.controller('recordsController', ['$http', 'RecordModel', 'CartService', 'UserService', '$location',
+    function ($http, RecordModel, CartService, UserService, $location) {
         let self = this;
         self.fieldToOrderBy = "Name";
         self.category = 1;
-        $http.get('/getBestSellingProducts')
-            .then(function (res) {
-                //We build now ProductModel for each record
-                self.topselingrecords = [];
-                angular.forEach(res.data, function (record) {
-                        self.topselingrecords.push(new RecordModel(record));
-                    }
-                );
-                $http.get('/getNewestProducts')
-                    .then(function (res) {
-                        //We build now ProductModel for each record
-                        self.newrecords = [];
-                        angular.forEach(res.data, function (record) {
-                                self.newrecords.push(new RecordModel(record));
-                            }
-                        );
 
-                    })
-            });
+        self.getBestSellingProducts = function () {
+            return new Promise(function (resolve, reject) {
+                $http.get('/getBestSellingProducts')
+                    .then(function (res) {
+                            //We build now ProductModel for each record
+                            self.topselingrecords = [];
+                            angular.forEach(res.data, function (record) {
+                                    self.topselingrecords.push(new RecordModel(record));
+                                }
+                            );
+                            resolve();
+                        }, function (reason) {
+                            console.log(reason.message);
+                            reject();
+                        }
+                    )
+            })
+        };
+
+        self.getNewestProducts = function () {
+            $http.get('/getNewestProducts')
+                .then(function (res) {
+                    //We build now ProductModel for each record
+                    self.newrecords = [];
+                    angular.forEach(res.data, function (record) {
+                            self.newrecords.push(new RecordModel(record));
+                        }
+                    );
+
+                })
+        };
+
+        if (!$location.path().match('/records')) {
+            // perform calls to the Server to get products in Home page
+            self.getBestSellingProducts()
+                .then(self.getNewestProducts);
+        }
 
         self.getByCategory = function () {
             $http.get('/getProductsByCategory?category=' + self.category)
@@ -155,36 +174,58 @@ app.controller('recordsController', ['$http', 'RecordModel', 'CartService',
             console.log("recordsController::removeRecordFromCart");
             CartService.removeRecordFromCart(record);
         }
-    }]);
+    }
+])
+;
 //-------------------------------------------------------------------------------------------------------------------
-app.controller('recordsMainController', ['$http', 'RecordModel', 'CartService','UserService',
-    function ($http, RecordModel, CartService,UserService) {
+app.controller('recordsMainController', ['$http', 'RecordModel', 'CartService', 'UserService', '$location',
+    function ($http, RecordModel, CartService, UserService, $location) {
         let self = this;
         self.fieldToOrderBy = "Name";
         self.category = 1;
         self.userService = UserService;
-        $http.get('/listAllProducts')
-            .then(function (res) {
-                //We build now ProductModel for each record
-                self.records = [];
-                angular.forEach(res.data, function (record) {
-                        self.records.push(new RecordModel(record));
-                    }
-                );
-                var data = ({
-                    username: self.userService.username,
-                });
-                $http.post('/getRecommendedProducts', data)
+        self.data = ({
+            username: self.userService.username
+        });
+
+        self.listAllProducts = function () {
+            return new Promise(function (resolve, reject) {
+                $http.get('/listAllProducts')
                     .then(function (res) {
-                        //We build now ProductModel for each record
-                        console.log(res);
-                        self.recommendedrecords = [];
-                        angular.forEach(res.data, function (record) {
-                                self.recommendedrecords.push(new RecordModel(record));
-                            }
-                        );
-                    })
-            });
+                            //We build now ProductModel for each record
+                            self.records = [];
+                            angular.forEach(res.data, function (record) {
+                                    self.records.push(new RecordModel(record));
+                                }
+                            );
+                            resolve();
+                        }, function (reason) {
+                            console.log(reason.message);
+                            reject();
+                        }
+                    )
+            })
+        };
+
+        self.getRecommendedProducts = function () {
+            $http.post('/getRecommendedProducts', self.data)
+                .then(function (res) {
+                    //We build now ProductModel for each record
+                    console.log(res);
+                    self.recommendedrecords = [];
+                    angular.forEach(res.data, function (record) {
+                            self.recommendedrecords.push(new RecordModel(record));
+                        }
+                    );
+                })
+
+        };
+
+        if ($location.path().match('/records')) {
+            // perform calls to the Server to get products in Records page
+            self.listAllProducts()
+                .then(self.getRecommendedProducts);
+        }
 
         self.getByCategory = function () {
             $http.get('/getProductsByCategory?category=' + self.category)
@@ -210,12 +251,14 @@ app.controller('recordsMainController', ['$http', 'RecordModel', 'CartService','
             console.log("recordsController::removeRecordFromCart");
             CartService.removeRecordFromCart(record);
         }
-    }]);
+    }])
+;
 //-------------------------------------------------------------------------------------------------------------------
 app.factory('UserService', ['$http', function ($http) {
     let service = {};
     service.isLoggedIn = false;
     service.username = "";
+    service.currentPage = "";
     service.login = function (user) {
         return $http.post('/login', user)
             .then(function (response) {
