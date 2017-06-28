@@ -56,16 +56,19 @@ app.factory('CartService', ['$http', function ($http) {
 
         let recordIndexInCart = service.recordIndexInCart(record);
         if (recordIndexInCart > -1) {
-            // record is in cart
+            // the given record is in cart
             if (service.cart[recordIndexInCart].Quantity == 1) {
                 // record has once instance in the cart
                 service.cart.splice(recordIndexInCart, 1);
-                service.priceSum -= record.Price;
             }
             else {
-                //record has more than one instance in the cart
+                //then given record has more than one instance in the cart
                 service.cart[recordIndexInCart].Quantity--;
             }
+
+            //decrease overall price
+            service.priceSum -= record.Price;
+
             alert("'" + record.Name + "' " + "has been removed from your cart")
         }
         else {
