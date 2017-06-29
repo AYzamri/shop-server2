@@ -321,7 +321,6 @@ app.config(['$routeProvider', function ($routeProvider) {
     $routeProvider
         .when("/", {
             templateUrl: "views/home.html",
-            controller: "mainController"
         })
         .when("/login", {
             templateUrl: "views/login.html",
@@ -333,11 +332,9 @@ app.config(['$routeProvider', function ($routeProvider) {
         })
         .when("/records", {
             templateUrl: "views/records.html",
-            controller: 'recordsMainController'
         })
         .when("/cart", {
-            templateUrl: "views/cart.html",
-            controller: 'cartController'
+            templateUrl: "views/cart.html"
         })
         .when("/StorageExample", {
             templateUrl: "views/StorageExample.html",
