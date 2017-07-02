@@ -21,30 +21,31 @@
             <thead>
             <th></th>
             <th>
-                <a href="" ng-click="recordsCtrl.fieldToOrderBy='Name'">
+                <a href="" ng-click="recordsCtrl.orderByClick('Name')">
                     Name
                 </a>
             </th>
             <th>
-                <a href="" ng-click="recordsCtrl.fieldToOrderBy='Artist'">
+                <a href="" ng-click="recordsCtrl.orderByClick('Artist')">
                     Artist
                 </a>
             </th>
             <th>
-                <a href="" ng-click="recordsCtrl.fieldToOrderBy='ReleasedYear'">
+                <a href="" ng-click="recordsCtrl.orderByClick('ReleasedYear')">
                     Year Of Release
                 </a>
             </th>
             <th>
-                <a href="" ng-click="recordsCtrl.fieldToOrderBy='Price'">
+                <a href="" ng-click="recordsCtrl.orderByClick('Price')">
                     Price
                 </a>
             </th>
 
             </thead>
             <tbody>
-            <tr ng-repeat="record in recordsCtrl.records | orderBy:recordsCtrl.fieldToOrderBy">
-                <td class="records"><img src="{{record.PicturePath}}" class="ImgRecords"/></td>
+            <tr ng-repeat="record in recordsCtrl.records |
+            orderBy:recordsCtrl.fieldToOrderBy:recordsCtrl.shouldReverse">
+                <td class="records"><img ng-src={{record.PicturePath}} class="ImgRecords"/></td>
                 <td class="records">{{record.Name}}</td>
                 <td class="records">{{record.Artist}}</td>
                 <td class="records">{{record.ReleasedYear}}</td>
@@ -67,30 +68,32 @@
             <thead>
             <th></th>
             <th>
-                <a href="" ng-click="recordsCtrl.fieldToOrderBy='Name'">
+                <a href="" ng-click="recordsCtrl.recommendedOrderByClick('Name')">
                     Name
                 </a>
             </th>
             <th>
-                <a href="" ng-click="recordsCtrl.fieldToOrderBy='Artist'">
+                <a href="" ng-click="recordsCtrl.recommendedOrderByClick('Artist')">
                     Artist
                 </a>
             </th>
             <th>
-                <a href="" ng-click="recordsCtrl.fieldToOrderBy='ReleasedYear'">
+                <a href="" ng-click="recordsCtrl.recommendedOrderByClick('ReleasedYear')">
                     Year Of Release
                 </a>
             </th>
             <th>
-                <a href="" ng-click="recordsCtrl.fieldToOrderBy='Price'">
+                <a href="" ng-click="recordsCtrl.recommendedOrderByClick('Price')">
                     Price
                 </a>
             </th>
 
             </thead>
             <tbody>
-            <tr ng-repeat="record in recordsCtrl.recommendedrecords | orderBy:Name">
-                <td class="records"><img src="{{record.PicturePath}}" class="ImgRecords"/></td>
+            <tr
+                    ng-repeat="record in recordsCtrl.recommendedrecords
+                     | orderBy:recordsCtrl.recommendedFieldToOrderBy:recordsCtrl.recommendedShouldReverse">
+                <td class="records"><img ng-src={{record.PicturePath}} class="ImgRecords"/></td>
                 <td class="records">{{record.Name}}</td>
                 <td class="records">{{record.Artist}}</td>
                 <td class="records">{{record.ReleasedYear}}</td>

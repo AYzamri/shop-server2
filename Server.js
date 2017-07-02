@@ -135,7 +135,8 @@ app.get('/getProductsByName', function (req, res) {
 //****get top 5 selling products*****
 app.get('/getBestSellingProducts', function (req, res) {
     console.log("**get top selling products**");
-    var query = "select * from (select top 5 RecordID, sum(Amount) as sold from RecordsInOrders group by RecordID Order by sum(Amount) desc) AS t1 JOIN (select * from Records) AS t2 ON t1.RecordID=t2.RecordID"
+    var query = "select * from (select top 5 RecordID, sum(Amount) as sold from RecordsInOrders group by RecordID" +
+        " Order by sum(Amount) desc) AS t1 JOIN (select * from Records) AS t2 ON t1.RecordID=t2.RecordID";
     DBUtils.Select(connection, query)
         .then(function (records) {
             console.log("returned top 5 selling products to client")

@@ -76,11 +76,14 @@ app.controller('recordsMainController', ['$http', 'RecordModel', 'CartService', 
     function ($http, RecordModel, CartService, UserService, $location) {
         let self = this;
         self.fieldToOrderBy = "Name";
+        self.recommendedFieldToOrderBy = "Name";
         self.category = 1;
         self.userService = UserService;
         self.data = ({
             username: self.userService.username
         });
+        self.orderByHistory = {Name: 0, Artist: 0, ReleasedYear: 0, Price: 0};
+        self.recommendedOrderByHistory = {Name: 0, Artist: 0, ReleasedYear: 0, Price: 0};
 
         self.listAllProducts = function () {
             return new Promise(function (resolve, reject) {
@@ -105,7 +108,6 @@ app.controller('recordsMainController', ['$http', 'RecordModel', 'CartService', 
             $http.post('/getRecommendedProducts', self.data)
                 .then(function (res) {
                     //We build now ProductModel for each record
-                    console.log(res);
                     self.recommendedrecords = [];
                     angular.forEach(res.data, function (record) {
                             self.recommendedrecords.push(new RecordModel(record));
@@ -144,7 +146,32 @@ app.controller('recordsMainController', ['$http', 'RecordModel', 'CartService', 
         self.removeRecordFromCart = function (record) {
             console.log("recordsController::removeRecordFromCart");
             CartService.removeRecordFromCart(record);
+        };
+
+        self.orderByClick = function (category) {
+            self.fieldToOrderBy = category;
+            self.shouldReverse = false;
+
+            self.orderByHistory[category]++;
+            let numberOfClicks = self.orderByHistory[category];
+            if (numberOfClicks % 2 != 0) {
+                //filter in reverse order
+                self.shouldReverse = "true";
+            }
+        };
+
+        self.recommendedOrderByClick = function (category) {
+            self.recommendedFieldToOrderBy = category;
+            self.recommendedShouldReverse = false;
+
+            self.recommendedOrderByHistory[category]++;
+            let numberOfClicks = self.recommendedOrderByHistory[category];
+            if (numberOfClicks % 2 != 0) {
+                //filter in reverse order
+                self.recommendedShouldReverse = "true";
+            }
         }
+
     }])
 ;
 //-------------------------------------------------------------------------------------------------------------------

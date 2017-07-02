@@ -4,8 +4,8 @@ app.config(function (localStorageServiceProvider) {
     localStorageServiceProvider.setPrefix('node_angular_App');
 });
 //-------------------------------------------------------------------------------------------------------------------
-app.controller('mainController', ['UserService', 'CartService', '$location', '$route',
-    function (UserService, CartService ,$location, $route) {
+app.controller('mainController', ['UserService', 'CartService', '$location',
+    function (UserService, CartService ,$location) {
         let self = this;
         self.greeting = 'Have a nice day';
         self.userService = UserService;
@@ -21,19 +21,20 @@ app.controller('mainController', ['UserService', 'CartService', '$location', '$r
 
         // check for cart in local storage
         var cart = self.userService.localStorage.get('cart');
-        console.log("cart: " + cart);
         if (cart != null){
             self.cartService.cart = cart;
             self.cartService.priceSum = self.userService.localStorage.get('cartPrice');
         }
 
         self.isLoggedIn = self.userService.isLoggedIn;
+
         self.logout = function () {
             self.isLoggedIn = false;
             self.userService.isLoggedIn = false;
             self.userService.localStorage.cookie.remove('username');
             self.userService.localStorage.cookie.remove('date');
-            $route.reload();
+            self.userService.username = "";
+            $location.path('/');
         };
     }]);
 //-------------------------------------------------------------------------------------------------------------------
@@ -148,10 +149,6 @@ app.config(['$routeProvider', function ($routeProvider) {
         })
         .when("/cart", {
             templateUrl: "views/cart.html"
-        })
-        .when("/StorageExample", {
-            templateUrl: "views/StorageExample.html",
-            controller: 'StorageExampleController'
         })
         .otherwise({
             redirect: '/'

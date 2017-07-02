@@ -20,7 +20,7 @@
         </thead>
         <tbody>
         <tr ng-repeat="record in recordsCtrl.topselingrecords | orderBy:Name">
-            <td class="records"><img src="{{record.PicturePath}}" class="ImgRecords"/></td>
+            <td class="records"><img ng-src={{record.PicturePath}} class="ImgRecords"/></td>
             <td class="records">{{record.Name}}</td>
             <td class="records">{{record.Artist}}</td>
             <td class="records">{{record.ReleasedYear}}</td>
@@ -57,7 +57,7 @@
             </thead>
             <tbody>
             <tr ng-repeat="record in recordsCtrl.newrecords | orderBy: ArriveDateInStore">
-                <td class="records"><img src="{{record.PicturePath}}" class="ImgRecords"/></td>
+                <td class="records"><img ng-src={{record.PicturePath}} class="ImgRecords"/></td>
                 <td class="records">{{record.Name}}</td>
                 <td class="records">{{record.Artist}}</td>
                 <td class="records">{{record.ArriveDateInStore | date:'MM/dd/yyyy'}}</td>
