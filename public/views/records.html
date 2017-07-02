@@ -1,115 +1,111 @@
 <div ng-controller="recordsMainController as recordsCtrl">
-    <div ng-controller="mainController as mainCtrl">
-        <h2>Records</h2>
-        <br>
-        <button ng-click="recordsCtrl.getByCategory()">Show By Category</button>
-        <select ng-model="recordsCtrl.category">
-            <option value="1">Rock</option>
-            <option value="2">Pop</option>
-            <option value="5">R&B</option>
-            <option value="6">Jazz</option>
-            <option value="7">Blues</option>
-            <option value="8">Metal</option>
-            <option value="9">Techno</option>
-            <option value="10">House</option>
-            <option value="11">EDM</option>
-            <option value="12">Funk</option>
-            <option value="13">Reggae</option>
+    <h2>Records</h2>
+    <br>
+    <button ng-click="recordsCtrl.getByCategory()">Show By Category</button>
+    <select ng-model="recordsCtrl.category">
+        <option value="1">Rock</option>
+        <option value="2">Pop</option>
+        <option value="5">R&B</option>
+        <option value="6">Jazz</option>
+        <option value="7">Blues</option>
+        <option value="8">Metal</option>
+        <option value="9">Techno</option>
+        <option value="10">House</option>
+        <option value="11">EDM</option>
+        <option value="12">Funk</option>
+        <option value="13">Reggae</option>
 
-        </select>
-        <div ng-show="recordsCtrl.records">
-            <table class="records">
-                <thead>
-                <th></th>
-                <th>
-                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='Name'">
-                        Name
-                    </a>
-                </th>
-                <th>
-                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='Artist'">
-                        Artist
-                    </a>
-                </th>
-                <th>
-                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='ReleasedYear'">
-                        Year Of Release
-                    </a>
-                </th>
-                <th>
-                    <a href="" ng-click="recordsCtrl.fieldToOrderBy='Price'">
-                        Price
-                    </a>
-                </th>
+    </select>
+    <div ng-show="recordsCtrl.records">
+        <table class="records">
+            <thead>
+            <th></th>
+            <th>
+                <a href="" ng-click="recordsCtrl.fieldToOrderBy='Name'">
+                    Name
+                </a>
+            </th>
+            <th>
+                <a href="" ng-click="recordsCtrl.fieldToOrderBy='Artist'">
+                    Artist
+                </a>
+            </th>
+            <th>
+                <a href="" ng-click="recordsCtrl.fieldToOrderBy='ReleasedYear'">
+                    Year Of Release
+                </a>
+            </th>
+            <th>
+                <a href="" ng-click="recordsCtrl.fieldToOrderBy='Price'">
+                    Price
+                </a>
+            </th>
 
-                </thead>
-                <tbody>
-                <tr ng-repeat="record in recordsCtrl.records | orderBy:recordsCtrl.fieldToOrderBy">
-                    <td class="records"><img src="{{record.PicturePath}}" class="ImgRecords"/></td>
-                    <td class="records">{{record.Name}}</td>
-                    <td class="records">{{record.Artist}}</td>
-                    <td class="records">{{record.ReleasedYear}}</td>
-                    <td class="records">{{record.Price}}</td>
-                    <td class="records"><img src="../resources/add-to-cart.png" width="40" height="40" class="cart"
-                                             ng-click="recordsCtrl.addRecordToCart(record)"
-                                             ng-show="mainCtrl.isLoggedIn">
-                    </td>
-                    <td class="records"><img src="../resources/remove-from-cart.png" width="40" height="40" class="cart"
-                                             ng-click="recordsCtrl.removeRecordFromCart(record)"
-                                             ng-show="mainCtrl.isLoggedIn">
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-        <div ng-controller="mainController as mainCtrl">
-            <div ng-show="mainCtrl.isLoggedIn">
-                <h1>Recommended just for you</h1>
-                <table class="records">
-                    <thead>
-                    <th></th>
-                    <th>
-                        <a href="" ng-click="recordsCtrl.fieldToOrderBy='Name'">
-                            Name
-                        </a>
-                    </th>
-                    <th>
-                        <a href="" ng-click="recordsCtrl.fieldToOrderBy='Artist'">
-                            Artist
-                        </a>
-                    </th>
-                    <th>
-                        <a href="" ng-click="recordsCtrl.fieldToOrderBy='ReleasedYear'">
-                            Year Of Release
-                        </a>
-                    </th>
-                    <th>
-                        <a href="" ng-click="recordsCtrl.fieldToOrderBy='Price'">
-                            Price
-                        </a>
-                    </th>
+            </thead>
+            <tbody>
+            <tr ng-repeat="record in recordsCtrl.records | orderBy:recordsCtrl.fieldToOrderBy">
+                <td class="records"><img src="{{record.PicturePath}}" class="ImgRecords"/></td>
+                <td class="records">{{record.Name}}</td>
+                <td class="records">{{record.Artist}}</td>
+                <td class="records">{{record.ReleasedYear}}</td>
+                <td class="records">{{record.Price}}</td>
+                <td class="records"><img src="../resources/add-to-cart.png" width="40" height="40" class="cart"
+                                         ng-click="recordsCtrl.addRecordToCart(record)"
+                                         ng-show="recordsCtrl.userService.isLoggedIn">
+                </td>
+                <td class="records"><img src="../resources/remove-from-cart.png" width="40" height="40" class="cart"
+                                         ng-click="recordsCtrl.removeRecordFromCart(record)"
+                                         ng-show="recordsCtrl.userService.isLoggedIn">
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div ng-show="recordsCtrl.userService.isLoggedIn">
+        <h1>Recommended just for you</h1>
+        <table class="records">
+            <thead>
+            <th></th>
+            <th>
+                <a href="" ng-click="recordsCtrl.fieldToOrderBy='Name'">
+                    Name
+                </a>
+            </th>
+            <th>
+                <a href="" ng-click="recordsCtrl.fieldToOrderBy='Artist'">
+                    Artist
+                </a>
+            </th>
+            <th>
+                <a href="" ng-click="recordsCtrl.fieldToOrderBy='ReleasedYear'">
+                    Year Of Release
+                </a>
+            </th>
+            <th>
+                <a href="" ng-click="recordsCtrl.fieldToOrderBy='Price'">
+                    Price
+                </a>
+            </th>
 
-                    </thead>
-                    <tbody>
-                    <tr ng-repeat="record in recordsCtrl.recommendedrecords | orderBy:Name">
-                        <td class="records"><img src="{{record.PicturePath}}" class="ImgRecords"/></td>
-                        <td class="records">{{record.Name}}</td>
-                        <td class="records">{{record.Artist}}</td>
-                        <td class="records">{{record.ReleasedYear}}</td>
-                        <td class="records">{{record.Price}}</td>
-                        <td class="records"><img src="../resources/add-to-cart.png" width="40" height="40" class="cart"
-                                                 ng-click="recordsCtrl.addRecordToCart(record)"
-                                                 ng-show="mainCtrl.isLoggedIn">
-                        </td>
-                        <td class="records"><img src="../resources/remove-from-cart.png" width="40" height="40"
-                                                 class="cart"
-                                                 ng-click="recordsCtrl.removeRecordFromCart(record)"
-                                                 ng-show="mainCtrl.isLoggedIn">
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+            </thead>
+            <tbody>
+            <tr ng-repeat="record in recordsCtrl.recommendedrecords | orderBy:Name">
+                <td class="records"><img src="{{record.PicturePath}}" class="ImgRecords"/></td>
+                <td class="records">{{record.Name}}</td>
+                <td class="records">{{record.Artist}}</td>
+                <td class="records">{{record.ReleasedYear}}</td>
+                <td class="records">{{record.Price}}</td>
+                <td class="records"><img src="../resources/add-to-cart.png" width="40" height="40" class="cart"
+                                         ng-click="recordsCtrl.addRecordToCart(record)"
+                                         ng-show="recordsCtrl.userService.isLoggedIn">
+                </td>
+                <td class="records"><img src="../resources/remove-from-cart.png" width="40" height="40"
+                                         class="cart"
+                                         ng-click="recordsCtrl.removeRecordFromCart(record)"
+                                         ng-show="recordsCtrl.userService.isLoggedIn">
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>

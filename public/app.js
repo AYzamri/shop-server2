@@ -9,11 +9,21 @@ app.controller('mainController', ['UserService', '$location', '$route',
         let self = this;
         self.greeting = 'Have a nice day';
         self.userService = UserService;
-        self.isLoggedIn = UserService.isLoggedIn;
 
+        // check for cookie
+        var userNameFromCookie = self.userService.localStorage.cookie.get('username');
+        if (userNameFromCookie != null) {
+            self.userService.isLoggedIn = true;
+            self.userService.username = userNameFromCookie;
+            console.log("found cookie of: " + userNameFromCookie);
+        }
+
+        self.isLoggedIn = self.userService.isLoggedIn;
         self.logout = function () {
             self.isLoggedIn = false;
-            UserService.isLoggedIn = false;
+            self.userService.isLoggedIn = false;
+            self.userService.localStorage.cookie.remove('username');
+            self.userService.localStorage.cookie.remove('date');
             $route.reload();
         };
     }]);
@@ -110,6 +120,7 @@ app.controller('recordsController', ['$http', 'RecordModel', 'CartService', 'Use
         let self = this;
         self.fieldToOrderBy = "Name";
         self.category = 1;
+        self.userService = UserService;
 
         self.getBestSellingProducts = function () {
             return new Promise(function (resolve, reject) {
@@ -254,11 +265,12 @@ app.controller('recordsMainController', ['$http', 'RecordModel', 'CartService', 
     }])
 ;
 //-------------------------------------------------------------------------------------------------------------------
-app.factory('UserService', ['$http', function ($http) {
+app.factory('UserService', ['$http', 'localStorageService', function ($http, localStorageSerivce) {
     let service = {};
     service.isLoggedIn = false;
     service.username = "";
     service.currentPage = "";
+    service.localStorage = localStorageSerivce;
     service.login = function (user) {
         return $http.post('/login', user)
             .then(function (response) {
@@ -269,6 +281,12 @@ app.factory('UserService', ['$http', function ($http) {
                 };
                 service.isLoggedIn = true;
                 service.username = user.username;
+
+                // set cookie
+                var date = new Date();
+                service.localStorage.cookie.set('username', user.username);
+                service.localStorage.cookie.set('date', date.today() + ", " + date.timeNow());
+
                 return Promise.resolve(response);
             })
             .catch(function (e) {
@@ -283,6 +301,13 @@ app.factory('UserService', ['$http', function ($http) {
         } else {
             message += "guest";
         }
+
+        //check for date in cookie
+        let lastLoginTime = service.localStorage.cookie.get('date');
+        if(lastLoginTime != null){
+            message += ". last login time: " + lastLoginTime;
+        }
+
         return message;
     };
 
@@ -320,18 +345,16 @@ app.config(['$locationProvider', function ($locationProvider) {
 app.config(['$routeProvider', function ($routeProvider) {
     $routeProvider
         .when("/", {
-            templateUrl: "views/home.html",
+            templateUrl: "views/home.html"
         })
         .when("/login", {
-            templateUrl: "views/login.html",
-            controller: "loginController"
+            templateUrl: "views/login.html"
         })
         .when("/signup", {
-            templateUrl: "views/signup.html",
-            controller: "signupController"
+            templateUrl: "views/signup.html"
         })
         .when("/records", {
-            templateUrl: "views/records.html",
+            templateUrl: "views/records.html"
         })
         .when("/cart", {
             templateUrl: "views/cart.html"
@@ -345,3 +368,12 @@ app.config(['$routeProvider', function ($routeProvider) {
         });
 }]);
 //-------------------------------------------------------------------------------------------------------------------
+// For today's date;
+Date.prototype.today = function () {
+    return ((this.getDate() < 10) ? "0" : "") + this.getDate() + "/" + (((this.getMonth() + 1) < 10) ? "0" : "") + (this.getMonth() + 1) + "/" + this.getFullYear();
+};
+
+// For the time now
+Date.prototype.timeNow = function () {
+    return ((this.getHours() < 10) ? "0" : "") + this.getHours() + ":" + ((this.getMinutes() < 10) ? "0" : "") + this.getMinutes() + ":" + ((this.getSeconds() < 10) ? "0" : "") + this.getSeconds();
+};
