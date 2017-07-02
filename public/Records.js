@@ -171,7 +171,5 @@ app.controller('recordsMainController', ['$http', 'RecordModel', 'CartService', 
                 self.recommendedShouldReverse = "true";
             }
         }
-
-    }])
-;
+    }]);
 //-------------------------------------------------------------------------------------------------------------------
