@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------------------------------------------------
 app.controller('cartController', ['CartService', '$location', '$window',
-    function (CartService, $location, $window) {
+    function (CartService) {
         let self = this;
         self.cartService = CartService;
 
@@ -16,79 +16,84 @@ app.controller('cartController', ['CartService', '$location', '$window',
 
     }]);
 //-------------------------------------------------------------------------------------------------------------------
-app.factory('CartService', ['$http', function ($http) {
-    let service = {};
+app.factory('CartService', ['$http', 'localStorageService',
+    function ($http, localStorageService) {
+        let service = {};
+        service.localStorage = localStorageService;
 
-    // this is the shopping cart which will be presented in cart.html
-    // array of products
-    service.cart = [];
+        // cart  is an array of products
+        service.cart = [];
+        service.priceSum = 0;
 
-    // when product goes inside the cart - increase priceSum with it's price
-    // when product goes outside the cart - decrease priceSum with it's price
-    service.priceSum = 0;
+        service.addRecordToCart = function (record) {
+            console.log("CartService::addRecordToCart");
 
-    service.addRecordToCart = function (record) {
-        console.log("CartService::addRecordToCart");
-
-        let addRecordIndexInCart = service.recordIndexInCart(record);
-        if (addRecordIndexInCart > -1) {
-            service.cart[addRecordIndexInCart].Quantity++;
-        }
-        else {
-            service.cart.push({
-                RecordID: record.RecordID,
-                Name: record.Name,
-                Artist: record.Artist,
-                Price: record.Price,
-                ReleasedYear: record.ReleasedYear,
-                Description: record.Description,
-                PicturePath: record.PicturePath,
-                ArriveDateInStore: record.ArriveDateInStore,
-                Quantity: 1
-            });
-        }
-        alert("'" + record.Name + "' " + "has been added to your cart")
-        service.priceSum += record.Price;
-    };
-
-    service.removeRecordFromCart = function (record) {
-        console.log("CartService::removeRecordFromCart");
-
-        let recordIndexInCart = service.recordIndexInCart(record);
-        if (recordIndexInCart > -1) {
-            // the given record is in cart
-            if (service.cart[recordIndexInCart].Quantity == 1) {
-                // record has once instance in the cart
-                service.cart.splice(recordIndexInCart, 1);
+            let addRecordIndexInCart = service.recordIndexInCart(record);
+            if (addRecordIndexInCart > -1) {
+                service.cart[addRecordIndexInCart].Quantity++;
             }
             else {
-                //then given record has more than one instance in the cart
-                service.cart[recordIndexInCart].Quantity--;
+                service.cart.push({
+                    RecordID: record.RecordID,
+                    Name: record.Name,
+                    Artist: record.Artist,
+                    Price: record.Price,
+                    ReleasedYear: record.ReleasedYear,
+                    Description: record.Description,
+                    PicturePath: record.PicturePath,
+                    ArriveDateInStore: record.ArriveDateInStore,
+                    Quantity: 1
+                });
             }
 
-            //decrease overall price
-            service.priceSum -= record.Price;
+            service.priceSum += record.Price;
+            service.updateCartCookie();
+            alert("'" + record.Name + "' " + "has been added to your cart");
+        };
 
-            alert("'" + record.Name + "' " + "has been removed from your cart")
-        }
-        else {
-            alert("This Record is not in your shopping cart")
-        }
-    };
+        service.removeRecordFromCart = function (record) {
+            console.log("CartService::removeRecordFromCart");
 
-    service.recordIndexInCart = function (record) {
-        console.log("CartService::recordIndexInCart");
+            let recordIndexInCart = service.recordIndexInCart(record);
+            if (recordIndexInCart > -1) {
+                // the given record is in cart
+                if (service.cart[recordIndexInCart].Quantity == 1) {
+                    // record has once instance in the cart
+                    service.cart.splice(recordIndexInCart, 1);
+                }
+                else {
+                    //then given record has more than one instance in the cart
+                    service.cart[recordIndexInCart].Quantity--;
+                }
 
-        for (var i = 0; i < service.cart.length; i += 1) {
-            if (service.cart[i]['RecordID'] === record.RecordID) {
-                return i;
+                service.priceSum -= record.Price;
+                service.updateCartCookie();
+                alert("'" + record.Name + "' " + "has been removed from your cart");
+
             }
-        }
-        return -1;
-    };
+            else {
+                alert("This Record is not in your shopping cart")
+            }
+        };
 
-    return service;
-}]);
+        service.recordIndexInCart = function (record) {
+            console.log("CartService::recordIndexInCart");
+
+            for (var i = 0; i < service.cart.length; i += 1) {
+                if (service.cart[i]['RecordID'] === record.RecordID) {
+                    return i;
+                }
+            }
+            return -1;
+        };
+
+        service.updateCartCookie = function () {
+            service.localStorage.set('cart', service.cart);
+            service.localStorage.set('cartPrice', service.priceSum);
+        };
+
+        return service;
+    }]);
 //-------------------------------------------------------------------------------------------------------------------
 app.directive('modalDialog', function () {
     return {
