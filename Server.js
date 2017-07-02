@@ -9,7 +9,7 @@ var app = express(); // activating express
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(express.static(__dirname + '/public'));
 //-------------------------------------------------------------------------------------------------------------------
@@ -102,8 +102,8 @@ app.get('/getProductsByCategory', function (req, res) {
     DBUtils.Select(connection, 'Select * FROM Records  JOIN [RecordsCategories] ON' +
         ' Records.RecordID=[RecordsCategories].RecordID WHERE RecordsCategories.CategoryID=' + category)
         .then(function (records) {
-                console.log("**sending all Records by category to client...**");
-                res.send(records);
+            console.log("**sending all Records by category to client...**");
+            res.send(records);
 
         })
         .catch(function (err) {
@@ -184,7 +184,7 @@ app.post('/login', function (req, res) {
             console.log("**Error in login: " + err + "**");
             if (err === "failure") res.status(500).send("login failed");
             else
-            res.status(500).send('500 - server error :' + err);
+                res.status(500).send('500 - server error :' + err);
         });
 
     function checkIfOneRecordIsBack(response) {
@@ -372,10 +372,32 @@ app.post('/recoverPassword', function (req, res) {
 
     DBUtils.Select(connection, query)
         .then(function (password) {
-            res.send(password.length === 1 ? password[0].Password : "Answer doesn't match question");
+            res.send(password.length === 1 ? "Your password is: " + password[0].Password :
+            "Answer doesn't match question");
         })
         .catch(function (err) {
             console.log("**Error in recover password:**");
+            res.status(500).send('500 - server error: ' + err.message);
+        })
+});
+
+// *** get question ***
+app.post('/getQuestion', function (req, res) {
+    console.log("** Get Question **");
+    var userName = "'" + req.body.username + "'";
+    var query = squel.select()
+        .field("Question")
+        .from("Clients")
+        .where("UserName = " + userName)
+        .toString();
+
+    DBUtils.Select(connection, query)
+        .then(function (question) {
+            res.send(question.length === 1 ? "Your question is: " + question[0].Question : "Incorrect username");
+            res.send(question[0].Question);
+        })
+        .catch(function (err) {
+            console.log("**Error in get question:**");
             res.status(500).send('500 - server error: ' + err.message);
         })
 });

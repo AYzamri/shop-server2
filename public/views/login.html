@@ -1,4 +1,4 @@
-<h2>Login Page</h2>
+<h2 xmlns="http://www.w3.org/1999/html">Login Page</h2>
 <div class="login-container" ng-controller="loginController as loginCtrl">
     <div class="login-form">
         <form name="loginForm" ng-submit="loginCtrl.login(loginForm.$valid)" novalidate>
@@ -23,7 +23,8 @@
                        name="passwordInput"
                        placeholder="Enter Password"
                        ng-minlength="3">
-                <p ng-show="loginForm.passwordInput.$error.minlength && !loginForm.passwordInput.$pristine" class="help-block">Password is too short</p>
+                <p ng-show="loginForm.passwordInput.$error.minlength && !loginForm.passwordInput.$pristine"
+                   class="help-block">Password is too short</p>
             </div>
 
             <input type="submit"
@@ -33,6 +34,44 @@
         </form>
         <div>
             {{loginCtrl.errorMessage}}
+        </div>
+
+        <br>
+        <a href="" ng-click="loginCtrl.forgotPassword=true">Forgot password?</a>
+
+        <div ng-show="loginCtrl.forgotPassword">
+
+            <form name="forgotPasswordName"
+                  ng-submit="loginCtrl.getQuestion(forgotPasswordName.$valid)"
+                  novalidate>
+                <input type="text"
+                       ng-model="loginCtrl.forgotPasswordName"
+                       ng-required="true"
+                       placeholder="Enter Username"
+                       class="form-control">
+                <input type="submit"
+                       value="Get question"
+                       ng-disabled="forgotPasswordName.$invalid">
+            </form>
+
+            {{ loginCtrl.question }}
+
+            <div ng-show="loginCtrl.showQuestion">
+                <br>
+                <form name="getPassword"
+                      ng-submit="loginCtrl.getPassword(getPassword.$valid)">
+                    <br>
+                    <input type="text" name="answer"
+                           ng-model="loginCtrl.answer"
+                           ng-required="true"
+                           placeholder="Enter answer">
+                    <input type="submit" value="Recover password">
+                </form>
+                <div ng-show="loginCtrl.showAnswer">
+                    {{ loginCtrl.password }}
+                </div>
+            </div>
+
         </div>
     </div>
 

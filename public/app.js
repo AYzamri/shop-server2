@@ -5,7 +5,7 @@ app.config(function (localStorageServiceProvider) {
 });
 //-------------------------------------------------------------------------------------------------------------------
 app.controller('mainController', ['UserService', 'CartService', '$location',
-    function (UserService, CartService ,$location) {
+    function (UserService, CartService, $location) {
         let self = this;
         self.greeting = 'Have a nice day';
         self.userService = UserService;
@@ -21,7 +21,7 @@ app.controller('mainController', ['UserService', 'CartService', '$location',
 
         // check for cart in local storage
         var cart = self.userService.localStorage.get('cart');
-        if (cart != null){
+        if (cart != null) {
             self.cartService.cart = cart;
             self.cartService.priceSum = self.userService.localStorage.get('cartPrice');
         }
@@ -38,8 +38,8 @@ app.controller('mainController', ['UserService', 'CartService', '$location',
         };
     }]);
 //-------------------------------------------------------------------------------------------------------------------
-app.controller('loginController', ['UserService', '$location', '$window',
-    function (UserService, $location, $window) {
+app.controller('loginController', ['UserService', '$location', '$window', '$http',
+    function (UserService, $location, $window, $http) {
         let self = this;
         self.user = {username: '', password: ''};
 
@@ -54,14 +54,43 @@ app.controller('loginController', ['UserService', '$location', '$window',
                 })
             }
         };
+
+        self.getQuestion = function (valid) {
+            if (valid) {
+                $http.post('/getQuestion', {username: self.forgotPasswordName})
+                    .then(function (response) {
+                        self.question = response.data;
+                        if (self.question != "Incorrect username") {
+                            self.showQuestion = true;
+                            self.showAnswer = false;
+                        }
+
+                    }).catch(function (e) {
+                        self.question = "incorrect username";
+                })
+            }
+        };
+
+        self.getPassword = function (valid) {
+            if (valid) {
+                $http.post('/recoverPassword', {username: self.forgotPasswordName, answer: self.answer})
+                    .then(function (response) {
+                        self.password = response.data;
+                        self.showAnswer = true;
+
+                    }).catch(function (e) {
+
+                })
+            }
+        }
     }]);
 //-------------------------------------------------------------------------------------------------------------------
-app.factory('UserService', ['$http', 'localStorageService', function ($http, localStorageSerivce) {
+app.factory('UserService', ['$http', 'localStorageService', function ($http, localStorageService) {
     let service = {};
     service.isLoggedIn = false;
     service.username = "";
     service.currentPage = "";
-    service.localStorage = localStorageSerivce;
+    service.localStorage = localStorageService;
     service.login = function (user) {
         return $http.post('/login', user)
             .then(function (response) {
@@ -95,7 +124,7 @@ app.factory('UserService', ['$http', 'localStorageService', function ($http, loc
 
         //check for date in cookie
         let lastLoginTime = service.localStorage.cookie.get('date');
-        if(lastLoginTime != null){
+        if (lastLoginTime != null) {
             message += ". last login time: " + lastLoginTime;
         }
 
