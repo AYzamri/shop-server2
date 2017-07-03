@@ -1,6 +1,6 @@
 <div ng-controller="recordsController as recordsCtrl">
-    <h1>Homepage</h1>
-    <h2>Top Selling Records</h2>
+
+    <h2 class="neon-text">Top Selling Records</h2>
     <table class="records">
         <thead>
         <th></th>
@@ -16,6 +16,12 @@
         <th>
             Price
         </th>
+        <th ng-show="recordsCtrl.userService.isLoggedIn">
+            Add
+        </th>
+        <th ng-show="recordsCtrl.userService.isLoggedIn">
+            Remove
+        </th>
 
         </thead>
         <tbody>
@@ -25,11 +31,11 @@
             <td class="records">{{record.Artist}}</td>
             <td class="records">{{record.ReleasedYear}}</td>
             <td class="records">{{record.Price}}</td>
-            <td class="records"><img src="../resources/add-to-cart.png" width="40" height="40" class="cart"
+            <td class="records" ng-show="recordsCtrl.userService.isLoggedIn"><img src="../resources/add-to-cart.png" width="40" height="40" class="cart"
                                      ng-click="recordsCtrl.addRecordToCart(record)"
-                                     ng-show="recordsCtrl.userService.isLoggedIn">
+                                     n>
             </td>
-            <td class="records"><img src="../resources/remove-from-cart.png" width="40" height="40" class="cart"
+            <td class="records" ng-show="recordsCtrl.userService.isLoggedIn"><img src="../resources/remove-from-cart.png" width="40" height="40" class="cart"
                                      ng-click="recordsCtrl.removeRecordFromCart(record)"
                                      ng-show="recordsCtrl.userService.isLoggedIn">
             </td>
@@ -53,7 +59,12 @@
             <th>
                 Price
             </th>
-
+            <th ng-show="recordsCtrl.userService.isLoggedIn">
+                Add
+            </th>
+            <th ng-show="recordsCtrl.userService.isLoggedIn">
+                Remove
+            </th>
             </thead>
             <tbody>
             <tr ng-repeat="record in recordsCtrl.newrecords | orderBy: ArriveDateInStore">

@@ -40,7 +40,12 @@
                     Price
                 </a>
             </th>
-
+            <th ng-show="recordsCtrl.userService.isLoggedIn">
+                Add
+            </th>
+            <th ng-show="recordsCtrl.userService.isLoggedIn">
+                Remove
+            </th>
             </thead>
             <tbody>
             <tr ng-repeat="record in recordsCtrl.records |
@@ -87,7 +92,12 @@
                     Price
                 </a>
             </th>
-
+            <th ng-show="recordsCtrl.userService.isLoggedIn">
+                Add
+            </th>
+            <th ng-show="recordsCtrl.userService.isLoggedIn">
+                Remove
+            </th>
             </thead>
             <tbody>
             <tr

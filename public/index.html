@@ -11,48 +11,26 @@
     <script src="resources/xml2json.js"></script>
     <script type="text/javascript" src="angularScripts/angular-route.js"></script>
     <script type="text/javascript" src="angularScripts/angular-local-storage.min.js"></script>
-
     <script type="text/javascript" src="RecordModel.js"></script>
-
     <link rel="stylesheet" href="views/style.css" type="text/css" media="screen"/>
-
+    <link async href="http://fonts.googleapis.com/css?family=Atomic%20Age" data-generated="http://enjoycss.com" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div ng-controller="mainController as mainCtrl">
-    <header><h1>Welcome To Our Record Shop</h1></header>
-    <div> {{ mainCtrl.userService.helloMessage() }}</div>
-    <br>
-    <div ng-show="mainCtrl.userService.isLoggedIn">
-        <a ng-href="#/cart">
-            <img src="resources/cart-icon.png" height="70" width="70" class="cart">
-        </a>
+    <header>
+    <div id="header">
+        <div align="right"> {{ mainCtrl.userService.helloMessage() }}</div>
+        <a href="" id="logo">Welcome To Our Record Shop</a>
+        <ul id="menu">
+            <li><a ng-href="#/"><span>Home</span></a></li>
+            <li><a ng-href="#/records"><span>Records</span></a></li>
+            <li ng-hide="mainCtrl.userService.isLoggedIn"> <a ng-href="#/login"><span>Login</span></a></li>
+            <li ng-hide="mainCtrl.userService.isLoggedIn"> <a ng-href="#/signup"><span>Sign Up</span></a></li>
+            <li ng-show="mainCtrl.userService.isLoggedIn"> <a ng-href="#/" ng-click="mainCtrl.logout()"><span>Logout</span></a></li>
+            <li ng-show="mainCtrl.userService.isLoggedIn"> <a ng-href="#/cart">Cart</a></li>
+        </ul>
     </div>
-    <div>
-        <a ng-href="#/">Home</a>
-    </div>
-    <div>
-            <span ng-hide="mainCtrl.userService.isLoggedIn">
-                <a ng-href="#/login">Login</a>
-            </span>
-    </div>
-    <div>
-            <span ng-hide="mainCtrl.userService.isLoggedIn">
-                <a ng-href="#/signup">Signup</a>
-            </span>
-    </div>
-    <div>
-            <span ng-show="mainCtrl.userService.isLoggedIn">
-                <a ng-href="#/" ng-click="mainCtrl.logout()">Logout</a>
-            </span>
-    </div>
-    <div>
-        <a ng-href="#/records">Records</a>
-    </div>
-    <div>
-            <span>
-                <a ng-href="#/StorageExample">Local-Storage</a>
-            </span>
-    </div>
+    </header>
 </div>
 <br>
 <br>
