@@ -20,11 +20,7 @@ app.controller('mainController', ['UserService', 'CartService', '$location',
         }
 
         // check for cart in local storage
-        var cart = self.userService.localStorage.get('cart');
-        if (cart != null) {
-            self.cartService.cart = cart;
-            self.cartService.priceSum = self.userService.localStorage.get('cartPrice');
-        }
+        self.cartService.searchCartInLocalStorage();
 
         self.isLoggedIn = self.userService.isLoggedIn;
 
@@ -38,16 +34,23 @@ app.controller('mainController', ['UserService', 'CartService', '$location',
         };
     }]);
 //-------------------------------------------------------------------------------------------------------------------
-app.controller('loginController', ['UserService', '$location', '$window', '$http',
-    function (UserService, $location, $window, $http) {
+app.controller('loginController', ['UserService', '$location', '$window', '$http', 'CartService',
+    function (UserService, $location, $window, $http, CartService) {
         let self = this;
         self.user = {username: '', password: ''};
+        self.userService = UserService;
+        self.cartService = CartService;
 
         self.login = function (valid) {
             if (valid) {
                 UserService.login(self.user).then(function (success) {
                     $window.alert('You are logged in');
+
+                    //check for cart in local storage
+                    self.cartService.searchCartInLocalStorage();
+
                     $location.path('/');
+
                 }, function (error) {
                     self.errorMessage = error.data;
                     $window.alert('log-in has failed');
@@ -66,7 +69,7 @@ app.controller('loginController', ['UserService', '$location', '$window', '$http
                         }
 
                     }).catch(function (e) {
-                        self.question = "incorrect username";
+                    self.question = "incorrect username";
                 })
             }
         };

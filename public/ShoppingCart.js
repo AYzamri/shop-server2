@@ -16,14 +16,15 @@ app.controller('cartController', ['CartService', '$location', '$window',
 
     }]);
 //-------------------------------------------------------------------------------------------------------------------
-app.factory('CartService', ['$http', 'localStorageService',
-    function ($http, localStorageService) {
+app.factory('CartService', ['$http', 'localStorageService', 'UserService',
+    function ($http, localStorageService, UserService) {
         let service = {};
         service.localStorage = localStorageService;
 
         // cart  is an array of products
         service.cart = [];
         service.priceSum = 0;
+        service.userService = UserService;
 
         service.addRecordToCart = function (record) {
             console.log("CartService::addRecordToCart");
@@ -88,8 +89,18 @@ app.factory('CartService', ['$http', 'localStorageService',
         };
 
         service.updateCartCookie = function () {
-            service.localStorage.set('cart', service.cart);
-            service.localStorage.set('cartPrice', service.priceSum);
+            let storageCart = {};
+            storageCart.items = service.cart;
+            storageCart.price = service.priceSum;
+            service.localStorage.set(service.userService.username, storageCart);
+        };
+
+        service.searchCartInLocalStorage = function () {
+            var storage = service.userService.localStorage.get(service.userService.username);
+            if (storage != null) {
+                service.cart = storage.items;
+                service.priceSum = storage.price;
+            }
         };
 
         return service;
