@@ -1,9 +1,10 @@
 <script src="../resources/xml2json.js"></script>
-<h2 xmlns="http://www.w3.org/1999/html"> signup page</h2>
+<h2 class="neon-text">Sign Up</h2>
+<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
 <div class="signup-container" ng-controller="signupController as signupCtrl">
     <form name="signupForm"
           ng-submit="signupCtrl.signup(signupForm.$valid)"
-          novalidate>
+          novalidate class="dark-matter">
 
         <label><b>First name: </b></label>
         <input type="text"
@@ -103,6 +104,7 @@
         <br>
 
         <label><b>Country</b>
+            <br>
             <select ng-model="signupCtrl.user.country"
                     ng-options="country.Name as country.Name for country in signupCtrl.countries">
             </select>
@@ -128,6 +130,7 @@
         <br>
 
         <label><b>Question</b>
+            <br>
             <select ng-model="signupCtrl.user.question"
                     ng-options="question for question in signupCtrl.questions">
             </select>

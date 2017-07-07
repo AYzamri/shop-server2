@@ -1,7 +1,9 @@
 <div ng-controller="recordsController as recordsCtrl">
 
     <h2 class="neon-text">Top Selling Records</h2>
-    <table class="records">
+    <h2  ng-show="recordsCtrl.userService.isLoggedIn" class="neon-text" style="float:right;">Newest Records</h2>
+    <br><br><br><br><br><br><br><br><br><br><br><br>
+    <table class="records" id="records">
         <thead>
         <th></th>
         <th>
@@ -43,8 +45,8 @@
         </tbody>
     </table>
     <div ng-show="recordsCtrl.userService.isLoggedIn">
-        <h2>Newest Records</h2>
-        <table class="records">
+        <!--<h2>Newest Records</h2>-->
+        <table class="records" id="recordsnew">
             <thead>
             <th></th>
             <th>

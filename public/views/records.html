@@ -1,8 +1,10 @@
 <div ng-controller="recordsMainController as recordsCtrl">
-    <h2>Records</h2>
+    <h2 class="neon-text"> Records</h2>
+    <h2  ng-show="recordsCtrl.userService.isLoggedIn" class="neon-text" style="float:right;">Recommended </h2>
     <br>
-    <button ng-click="recordsCtrl.getByCategory()">Show By Category</button>
-    <select ng-model="recordsCtrl.category">
+    <br><br><br><br><br><br><br><br><br>
+
+    <select ng-model="recordsCtrl.category" class="categorybutton">
         <option value="1">Rock</option>
         <option value="2">Pop</option>
         <option value="5">R&B</option>
@@ -16,27 +18,29 @@
         <option value="13">Reggae</option>
 
     </select>
+    <button ng-click="recordsCtrl.getByCategory()" class="categorybutton" >Show By Category</button>
     <div ng-show="recordsCtrl.records">
-        <table class="records">
+        <br><br><br>
+        <table class="records" id="records">
             <thead>
             <th></th>
             <th>
-                <a href="" ng-click="recordsCtrl.orderByClick('Name')">
+                <a href="" ng-click="recordsCtrl.orderByClick('Name')" class="links">
                     Name
                 </a>
             </th>
             <th>
-                <a href="" ng-click="recordsCtrl.orderByClick('Artist')">
+                <a href="" ng-click="recordsCtrl.orderByClick('Artist')" class="links">
                     Artist
                 </a>
             </th>
             <th>
-                <a href="" ng-click="recordsCtrl.orderByClick('ReleasedYear')">
+                <a href="" ng-click="recordsCtrl.orderByClick('ReleasedYear')" class="links">
                     Year Of Release
                 </a>
             </th>
             <th>
-                <a href="" ng-click="recordsCtrl.orderByClick('Price')">
+                <a href="" ng-click="recordsCtrl.orderByClick('Price')" class="links">
                     Price
                 </a>
             </th>
@@ -55,11 +59,11 @@
                 <td class="records">{{record.Artist}}</td>
                 <td class="records">{{record.ReleasedYear}}</td>
                 <td class="records">{{record.Price}}</td>
-                <td class="records"><img src="../resources/add-to-cart.png" width="40" height="40" class="cart"
+                <td class="records" ng-show="recordsCtrl.userService.isLoggedIn"><img src="../resources/add-to-cart.png" width="40" height="40" class="cart"
                                          ng-click="recordsCtrl.addRecordToCart(record)"
                                          ng-show="recordsCtrl.userService.isLoggedIn">
                 </td>
-                <td class="records"><img src="../resources/remove-from-cart.png" width="40" height="40" class="cart"
+                <td class="records" ng-show="recordsCtrl.userService.isLoggedIn"><img src="../resources/remove-from-cart.png" width="40" height="40" class="cart"
                                          ng-click="recordsCtrl.removeRecordFromCart(record)"
                                          ng-show="recordsCtrl.userService.isLoggedIn">
                 </td>
@@ -68,27 +72,26 @@
         </table>
     </div>
     <div ng-show="recordsCtrl.userService.isLoggedIn">
-        <h1>Recommended just for you</h1>
-        <table class="records">
+        <table class="records" id="recommended">
             <thead>
             <th></th>
             <th>
-                <a href="" ng-click="recordsCtrl.recommendedOrderByClick('Name')">
+                <a href="" ng-click="recordsCtrl.recommendedOrderByClick('Name')" class="links">
                     Name
                 </a>
             </th>
             <th>
-                <a href="" ng-click="recordsCtrl.recommendedOrderByClick('Artist')">
+                <a href="" ng-click="recordsCtrl.recommendedOrderByClick('Artist')" class="links">
                     Artist
                 </a>
             </th>
             <th>
-                <a href="" ng-click="recordsCtrl.recommendedOrderByClick('ReleasedYear')">
+                <a href="" ng-click="recordsCtrl.recommendedOrderByClick('ReleasedYear')" class="links">
                     Year Of Release
                 </a>
             </th>
             <th>
-                <a href="" ng-click="recordsCtrl.recommendedOrderByClick('Price')">
+                <a href="" ng-click="recordsCtrl.recommendedOrderByClick('Price')" class="links">
                     Price
                 </a>
             </th>

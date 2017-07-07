@@ -1,4 +1,6 @@
 <div ng-controller="cartController as cartCtrl">
+    <h2 class="neon-text">Cart</h2>
+    <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
     <table class="records" ng-show="cartCtrl.cartService.cart.length > 0">
         <thead>
         <th>
@@ -12,6 +14,12 @@
         </th>
         <th>
             Quantity
+        </th>
+        <th>
+            Info
+        </th>
+        <th>
+            Remove
         </th>
         </thead>
         <tbody>
@@ -30,10 +38,10 @@
             </td>
         </tr>
         <br>
-        <tr> Overall price: {{ cartCtrl.cartService.priceSum }}</tr>
+
         </tbody>
     </table>
-
+    <h2><u>Overall price:</u>  {{ cartCtrl.cartService.priceSum }}</h2>
     <modal-dialog show='cartCtrl.modalShown' width='750px' height='60%'>
         <p>
         <h3>Product Details:</h3>

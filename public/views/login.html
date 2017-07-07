@@ -1,4 +1,5 @@
-<h2 xmlns="http://www.w3.org/1999/html">Login Page</h2>
+<h2 class="neon-text">Log In</h2>
+<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
 <div class="login-container" ng-controller="loginController as loginCtrl">
     <div class="login-form">
         <form name="loginForm" ng-submit="loginCtrl.login(loginForm.$valid)" novalidate>
@@ -41,7 +42,7 @@
 
         <div ng-show="loginCtrl.forgotPassword">
 
-            <form name="forgotPasswordName"
+            <form name="forgotPasswordName" id="forgotPasswordName"
                   ng-submit="loginCtrl.getQuestion(forgotPasswordName.$valid)"
                   novalidate>
                 <input type="text"
@@ -49,11 +50,9 @@
                        ng-required="true"
                        placeholder="Enter Username"
                        class="form-control">
-                <input type="submit"
-                       value="Get question"
-                       ng-disabled="forgotPasswordName.$invalid">
             </form>
-
+            <button class="btn" type="submit" form="forgotPasswordName" value="Submit" ng-disabled="forgotPasswordName.$invalid" value="Get question">Submit</button>
+<br>
             {{ loginCtrl.question }}
 
             <div ng-show="loginCtrl.showQuestion">
