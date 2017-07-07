@@ -114,19 +114,22 @@
         <label><b>Phone</b></label>
         <input type="text" placeholder="Enter Phone"
                name="phone"
-               ng-model="signupCtrl.phone">
+               ng-model="signupCtrl.phone"
+               ng-pattern="/^[0-9]*$/">
         <br>
 
         <label><b>Cellular</b></label>
         <input type="text" placeholder="Enter Cellular"
                name="cellular"
-               ng-model="signupCtrl.user.cellular">
+               ng-model="signupCtrl.user.cellular"
+               ng-pattern="/^[0-9]*$/">
         <br>
 
         <label><b>Credit Card</b></label>
         <input type="text" placeholder="Enter Credit Card Number"
                name="creditCard"
-               ng-model="signupCtrl.user.creditCard">
+               ng-model="signupCtrl.user.creditCard"
+               ng-pattern="/^[0-9]*$/">
         <br>
 
         <label><b>Question</b>

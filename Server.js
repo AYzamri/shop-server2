@@ -19,18 +19,6 @@ app.listen(port, function () {
     console.log('**listening to port: ' + port + '**');
 });
 //-------------------------------------------------------------------------------------------------------------------
-function checkLogin(req) {
-    var token = req.headers["my-token"];
-    var user = req.headers["user"];
-    if (!token || !user)
-        return false;
-    var validToken = app.locals.users[user];
-    if (validToken == token)
-        return true;
-    else
-        return false;
-}
-//-------------------------------------------------------------------------------------------------------------------
 var config = {
     userName: 'aaa',
     password: 'Admin1234!',
@@ -68,30 +56,43 @@ app.get('/listAllProducts', function (req, res) {
 });
 // *** listAllOrders ***
 app.get('/listAllOrders', function (req, res) {
-    console.log("**list all orders**");
-    DBUtils.Select(connection, 'Select * from Orders')
-        .then(function (records) {
-            console.log("**sending all orders to client...**");
-            res.send((records));
-        })
-        .catch(function (err) {
-            console.log("**Error in list orders**");
-            res.status(500).send('500 - server error: ' + err.message);
-        })
+    if (!checkLogin(req)) {
+        console.log("*** UN-AUTHORIZED ***");
+        res.status(403).send("not authorized");
+    }
+    else {
+        console.log("**list all orders**");
+        DBUtils.Select(connection, 'Select * from Orders')
+            .then(function (records) {
+                console.log("**sending all orders to client...**");
+                res.send((records));
+            })
+            .catch(function (err) {
+                console.log("**Error in list orders**");
+                res.status(500).send('500 - server error: ' + err.message);
+            })
+    }
 });
 
 //*****get top 5 newest products******
 app.get('/getNewestProducts', function (req, res) {
-    console.log("**list 5 newest records**");
-    DBUtils.Select(connection, 'Select TOP 5 * from Records ORDER by ArriveDateInStore DESC')
-        .then(function (records) {
-            console.log("**sending all Records to client...**");
-            res.send((records));
-        })
-        .catch(function (err) {
-            console.log("**Error in 5 newest records**");
-            res.status(500).send('500 - server error: ' + err.message);
-        })
+    console.log("*** getNewestProducts ***");
+    if (!checkLogin(req)) {
+        console.log("*** UN-AUTHORIZED ***");
+        res.status(403).send("not authorized");
+    }
+    else {
+        console.log("**list 5 newest records**");
+        DBUtils.Select(connection, 'Select TOP 5 * from Records ORDER by ArriveDateInStore DESC')
+            .then(function (records) {
+                console.log("**sending all Records to client...**");
+                res.send((records));
+            })
+            .catch(function (err) {
+                console.log("**Error in 5 newest records**");
+                res.status(500).send('500 - server error: ' + err.message);
+            })
+    }
 });
 
 //***get products by category*****
@@ -150,21 +151,27 @@ app.get('/getBestSellingProducts', function (req, res) {
 
 //***get orders by user*****
 app.post('/getOrdersByUser', function (req, res) {
-    console.log("**orders by given user**");
-    var userName = "'" + req.body.username + "'";
-    console.log("**given user" + userName + "**");
-    DBUtils.Select(connection, 'Select Orders.OrderID, OrderDate, ShipmentDate,' +
-        ' Currency,TotalAmount,[RecordsInOrders].RecordID,[RecordsInOrders].Amount, [Records].Name,[Records].Artist' +
-        ' FROM Orders  JOIN [RecordsInOrders] ON Orders.OrderID=[RecordsInOrders].OrderID JOIN [Records] ON' +
-        ' [RecordsInOrders].RecordID=[Records].RecordID WHERE Orders.UserName=' + userName)
-        .then(function (records) {
-            console.log("**sending all Records by category to client...**");
-            res.send((records));
-        })
-        .catch(function (err) {
-            console.log("**Error in products by category**");
-            res.status(500).send('500 - server error: ' + err.message);
-        })
+    if (!checkLogin(req)) {
+        console.log("*** UN-AUTHORIZED ***");
+        res.status(403).send("not authorized");
+    }
+    else {
+        console.log("**orders by given user**");
+        var userName = "'" + req.body.username + "'";
+        console.log("**given user" + userName + "**");
+        DBUtils.Select(connection, 'Select Orders.OrderID, OrderDate, ShipmentDate,' +
+            ' Currency,TotalAmount,[RecordsInOrders].RecordID,[RecordsInOrders].Amount, [Records].Name,[Records].Artist' +
+            ' FROM Orders  JOIN [RecordsInOrders] ON Orders.OrderID=[RecordsInOrders].OrderID JOIN [Records] ON' +
+            ' [RecordsInOrders].RecordID=[Records].RecordID WHERE Orders.UserName=' + userName)
+            .then(function (records) {
+                console.log("**sending all Records by category to client...**");
+                res.send((records));
+            })
+            .catch(function (err) {
+                console.log("**Error in products by category**");
+                res.status(500).send('500 - server error: ' + err.message);
+            })
+    }
 });
 
 // *** login ***
@@ -178,7 +185,10 @@ app.post('/login', function (req, res) {
         .then(checkIfOneRecordIsBack)
         .then(updateLoginTime)
         .then(function (response) {
-            res.send("login success");
+            let token = Math.random();
+            app.locals.users[req.body.username] = token;
+            console.log("*** TOKEN IS: " + token + "FOR USER: " + req.body.username + "***");
+            res.json(token);
         })
         .catch(function (err) {
             console.log("**Error in login: " + err + "**");
@@ -191,7 +201,6 @@ app.post('/login', function (req, res) {
         return new Promise(function (resolve, reject) {
             console.log("** check if one record is back **");
             if (response.length === 1) {
-                console.log("login failed: bad username or password");
                 resolve("success");
             }
             else reject("failure");
@@ -373,7 +382,7 @@ app.post('/recoverPassword', function (req, res) {
     DBUtils.Select(connection, query)
         .then(function (password) {
             res.send(password.length === 1 ? "Your password is: " + password[0].Password :
-            "Answer doesn't match question");
+                "Answer doesn't match question");
         })
         .catch(function (err) {
             console.log("**Error in recover password:**");
@@ -722,30 +731,47 @@ function checkIfRecordDeleted(rowCount) {
     })
 }
 
-
 //***get Recommended Products*****
 app.post('/getRecommendedProducts', function (req, res) {
     console.log("**get Recommended Products**");
-    var userName = "'" + req.body.username + "'";
-    console.log("**given user" + userName + "**");
-    var sq1 = 'Select DISTINCT RecordID from RecordsCategories INNER JOIN ClientsCategories on ClientsCategories.CategoryID=RecordsCategories.CategoryID ' +
-        'WHERE UserName=' + userName;
-    var sq2 = 'SELECT top 10 RecordID  from Orders  ' +
-        'INNER JOIN RecordsInOrders On ' +
-        'Orders.OrderID=RecordsInOrders.OrderID ' +
-        'WHERE UserName !=' + userName +
-        'group by RecordID Order by sum(Amount) desc ';
-    DBUtils.Select(connection, 'Select t1.RecordID,Name,Artist,ReleasedYear,Description,PicturePath,ArriveDateInStore,Price,Amount from (' + sq1 + ' AND RecordID IN (' + sq2 + ')) as t1 INNER JOIN (select * from Records)as t2 on t2.RecordID=t1.RecordID ')
-        .then(function (records) {
-            console.log("**sending all Records recommended to client...**");
-            res.send((records));
-        })
-        .catch(function (err) {
-            console.log("**Error in products recommended**");
-            res.status(500).send('500 - server error: ' + err.message);
-        })
+    if (!checkLogin(req)) {
+        console.log("*** UN-AUTHORIZED ***");
+        res.status(403).send("not authorized");
+    }
+    else {
+        var userName = "'" + req.body.username + "'";
+        console.log("**given user" + userName + "**");
+        var sq1 = 'Select DISTINCT RecordID from RecordsCategories INNER JOIN ClientsCategories on ClientsCategories.CategoryID=RecordsCategories.CategoryID ' +
+            'WHERE UserName=' + userName;
+        var sq2 = 'SELECT top 10 RecordID  from Orders  ' +
+            'INNER JOIN RecordsInOrders On ' +
+            'Orders.OrderID=RecordsInOrders.OrderID ' +
+            'WHERE UserName !=' + userName +
+            'group by RecordID Order by sum(Amount) desc ';
+        DBUtils.Select(connection, 'Select t1.RecordID,Name,Artist,ReleasedYear,Description,PicturePath,ArriveDateInStore,Price,Amount from (' + sq1 + ' AND RecordID IN (' + sq2 + ')) as t1 INNER JOIN (select * from Records)as t2 on t2.RecordID=t1.RecordID ')
+            .then(function (records) {
+                console.log("**sending all Records recommended to client...**");
+                res.send((records));
+            })
+            .catch(function (err) {
+                console.log("**Error in products recommended**");
+                res.status(500).send('500 - server error: ' + err.message);
+            })
+    }
 });
-
+//-------------------------------------------------------------------------------------------------------------------
+function checkLogin(req) {
+    console.log("*** CHECK LOGIN ***");
+    var token = req.headers["my-token"];
+    var user = req.headers["user"];
+    console.log("*** TOKEN GIVEN: " + token + ", USER: " + user + "***");
+    if (!token || !user)
+        return false;
+    var validToken = app.locals.users[user];
+    console.log("*** VALID TOKEN: " + validToken);
+    return validToken == token;
+}
+//-------------------------------------------------------------------------------------------------------------------
 
 // general error handler
 app.use(function (err, req, res, next) {

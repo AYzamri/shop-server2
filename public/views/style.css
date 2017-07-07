@@ -351,3 +351,7 @@ body {
     color: #333;
     background-color: #EBEBEB;
 }
+
+.recordsRow:hover > td {
+    background-color: lightgray;
+}
