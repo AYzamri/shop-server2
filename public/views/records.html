@@ -19,6 +19,7 @@
 
     </select>
     <button ng-click="recordsCtrl.getByCategory()" class="categorybutton" >Show By Category</button>
+    <input type="text" placeholder="Filter By" class="categorybutton" ng-model="recordsCtrl.filterBy">
     <div ng-show="recordsCtrl.records">
         <br><br><br>
         <table class="records" id="records">
@@ -52,7 +53,7 @@
             </th>
             </thead>
             <tbody>
-            <tr ng-repeat="record in recordsCtrl.records |
+            <tr ng-repeat="record in recordsCtrl.records |filter : recordsCtrl.filterBy |
             orderBy:recordsCtrl.fieldToOrderBy:recordsCtrl.shouldReverse">
                 <td class="records"><img ng-src={{record.PicturePath}} class="ImgRecords"/></td>
                 <td class="records">{{record.Name}}</td>

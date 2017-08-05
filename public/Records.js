@@ -78,6 +78,7 @@ app.controller('recordsMainController', ['$http', 'RecordModel', 'CartService', 
         self.fieldToOrderBy = "Name";
         self.recommendedFieldToOrderBy = "Name";
         self.category = 1;
+        self.filterBy="";
         self.userService = UserService;
         self.data = ({
             username: self.userService.username
