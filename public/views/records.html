@@ -104,9 +104,9 @@
             </th>
             </thead>
             <tbody>
-            <tr
-                    ng-repeat="record in recordsCtrl.recommendedrecords
-                     | orderBy:recordsCtrl.recommendedFieldToOrderBy:recordsCtrl.recommendedShouldReverse">
+            <tr ng-repeat="record in recordsCtrl.recommendedrecords
+                | orderBy:recordsCtrl.recommendedFieldToOrderBy:recordsCtrl.recommendedShouldReverse"
+                class = "recordsRow">
                 <td class="records"><img ng-src={{record.PicturePath}} class="ImgRecords"/></td>
                 <td class="records">{{record.Name}}</td>
                 <td class="records">{{record.Artist}}</td>

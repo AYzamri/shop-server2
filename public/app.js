@@ -4,8 +4,8 @@ app.config(function (localStorageServiceProvider) {
     localStorageServiceProvider.setPrefix('node_angular_App');
 });
 //-------------------------------------------------------------------------------------------------------------------
-app.controller('mainController', ['UserService', 'CartService', '$location',
-    function (UserService, CartService, $location) {
+app.controller('mainController', ['UserService', 'CartService', '$location', '$http',
+    function (UserService, CartService, $location, $http) {
         let self = this;
         self.greeting = 'Have a nice day';
         self.userService = UserService;
@@ -14,9 +14,14 @@ app.controller('mainController', ['UserService', 'CartService', '$location',
         // check for user cookie
         var userNameFromCookie = self.userService.localStorage.cookie.get('username');
         if (userNameFromCookie != null) {
+            console.log("found cookie of: " + userNameFromCookie);
             self.userService.isLoggedIn = true;
             self.userService.username = userNameFromCookie;
-            console.log("found cookie of: " + userNameFromCookie);
+            let token = self.userService.localStorage.cookie.get('token');
+            $http.defaults.headers.common = {
+                'my-Token': token,
+                'user': userNameFromCookie
+            };
         }
 
         // check for cart in local storage
@@ -45,10 +50,7 @@ app.controller('loginController', ['UserService', '$location', '$window', '$http
             if (valid) {
                 UserService.login(self.user).then(function (success) {
                     $window.alert('You are logged in');
-
-                    //check for cart in local storage
                     self.cartService.searchCartInLocalStorage();
-
                     $location.path('/');
 
                 }, function (error) {
@@ -109,6 +111,7 @@ app.factory('UserService', ['$http', 'localStorageService', function ($http, loc
                 var date = new Date();
                 service.localStorage.cookie.set('username', user.username);
                 service.localStorage.cookie.set('date', date.today() + ", " + date.timeNow());
+                service.localStorage.cookie.set('token', token);
 
                 return Promise.resolve(response);
             })
