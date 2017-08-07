@@ -26,6 +26,7 @@
         <ul id="menu">
             <li><a ng-href="#/"><span>Home</span></a></li>
             <li><a ng-href="#/records"><span>Records</span></a></li>
+            <li><a href="#" id="aboutBtn" onclick="showAbout()"><span>About</span></a></li>
             <li ng-hide="mainCtrl.userService.isLoggedIn"> <a ng-href="#/login"><span>Login</span></a></li>
             <li ng-hide="mainCtrl.userService.isLoggedIn"> <a ng-href="#/signup"><span>Sign Up</span></a></li>
             <li ng-show="mainCtrl.userService.isLoggedIn"> <a ng-href="#/" ng-click="mainCtrl.logout()"><span>Logout</span></a></li>
@@ -37,6 +38,18 @@
 <br>
 <br>
 <ng-view></ng-view>
-
+<!-- Modal -->
+<dialog id="aboutModal">
+    <h3 class="modal">Amit Pe'er & Adam Zamri</h3>
+    <h4 class="modal">
+        You can see our previous project in the links below: <br>
+        <a href="https://ayzamri.github.io/pacman.io">Pacman </a> <br>
+        <a href="https://ayzamri.github.io">Personal Site</a>
+        The difficulties we've encountered were the various bugs we've found in the game; <br>
+        Each and every bug was difficult to find and fix - we had to play the game a lot of times in order to find these
+        bugs. <br>
+    </h4>
+    <button onclick="closeAbout()">Close</button>
+</dialog>
 </body>
 </html>

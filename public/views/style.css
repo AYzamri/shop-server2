@@ -94,7 +94,12 @@ font-weight: bold;
     background-color: #000000;
     opacity: 0.8;
 }
-
+.modal {
+    color: dimgrey;
+}
+#aboutModal {
+    background-color: white;
+}
 .ng-modal-dialog {
     /* A centered div above the overlay with a box shadow. */
     z-index: 10000;

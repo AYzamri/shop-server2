@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="JavaScriptLibraryMappings">
-    <file url="file://$PROJECT_DIR$" libraries="{shop-server2 node_modules}" />
     <file url="file://$PROJECT_DIR$/public/app.js" libraries="{Nashorn}" />
   </component>
 </project>
